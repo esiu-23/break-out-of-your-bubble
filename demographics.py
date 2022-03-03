@@ -162,4 +162,4 @@ for var, _ in census_demos.iteritems():
 
 # Save static version of each data frame
 acs_demos.to_csv("data/acs_demos.csv")
-acs_demos.to_csv("data/census_demos.csv")
+census_demos.to_csv("data/census_demos.csv")
