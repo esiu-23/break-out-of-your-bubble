@@ -1,10 +1,10 @@
 # proj-bubble-trouble
 
-CS 122 Project
-Team:
-  Evelyn Siu
-  Cole von Glahn
-  Carolyn Vilter
+#CS 122 Project
+#Team:
+  #Evelyn Siu
+  #Cole von Glahn
+  #Carolyn Vilter
 
 - demographics.py: downloads demographic data from Census API, cleans and creates analysis variables in pandas dfs
 - install.sh: creates appropriate venv using requirements.txt
