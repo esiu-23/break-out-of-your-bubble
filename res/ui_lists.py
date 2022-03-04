@@ -8,11 +8,9 @@ def generate_lists():
     connection = sqlite3.connect('../../bubble_tables.db')
     c = connection.cursor()
 
-    ### Replace with our unique CSV files we want to generate (only for drop-down lists)
-
     # get lists of unique values from sql database
     state = c.execute('''SELECT DISTINCT state_name FROM acs''').fetchall()
-    county = c.execute('''SELECT DISTINCT county_name FROM acs WHERE state_name = ''').fetchall()
+    county = c.execute('''SELECT DISTINCT county_name FROM acs''').fetchall()
 
     connection.close()
 
