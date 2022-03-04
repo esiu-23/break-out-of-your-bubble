@@ -46,7 +46,7 @@ COLUMN_NAMES = dict(
 
 
 def _valid_result(res):
-    """Validate results returned by find_courses."""
+    """Validate results returned by find_counties."""
     (HEADER, RESULTS) = [0, 1]
     ok = (isinstance(res, (tuple, list)) and
           len(res) == 2 and
@@ -101,19 +101,15 @@ class IntegerRange(forms.MultiValueField):
 
 class DissimilarityRange(IntegerRange):
     def compress(self, data_list):
-        super(EnrollmentRange, self).compress(data_list)
+        super(DissimilarityRange, self).compress(data_list)
         for v in data_list:
-            if not 1 <= v <= 100:
+            if not -100 <= v <= 100:
                 raise forms.ValidationError(
-                    'Dissimilarity range must be 1 and 100.)
+                    'Dissimilarity range must be -100 and 100.')
         if data_list and (data_list[1] < data_list[0]):
             raise forms.ValidationError(
                 'Lower bound must not exceed upper bound.')
         return data_list
-
-# May or may not need range widget depending on what entries we let people put in
-RANGE_WIDGET = forms.widgets.MultiWidget(widgets=(forms.widgets.NumberInput,
-                                                  forms.widgets.NumberInput))
 
 # Update with all of our demographics & suggestion text
 class SearchForm(forms.Form):
@@ -123,16 +119,19 @@ class SearchForm(forms.Form):
     
     dissimilarity = DissimilarityRange(
         label='Dissimilarity Range (lower/upper)',
-        help_text='e.g. 1 and 10',
-        widget=RANGE_WIDGET,
+        help_text="Choose how dissimilar a county can be from yours (e.g., entering 10 would mean \
+            we would surface all counties whose demographics vary within +/- 10'%' \
+                from the county you currently live in.",
+        widget=forms.widgets.NumberInput,
         required=True)
     
     demographics = forms.MultipleChoiceField(label='Demographics',
                                      choices=COLUMN_NAMES,
                                      widget=forms.CheckboxSelectMultiple,
                                      required=True)
-    # show_args = forms.BooleanField(label='Show args_to_ui',
-    #                                required=False)
+    
+    show_args = forms.BooleanField(label='Show args_to_ui',
+                                    required=False)
 
 def home(request):
     context = {}
@@ -143,29 +142,14 @@ def home(request):
         # check whether it's valid:
         if form.is_valid():
 
-            ## We don't need this step, we can just put in the SQL query.
-            
-            # Convert form data to an args dictionary for find_courses
+            # Convert form data to an args dictionary for find_counties
             args = {}
+            
+            dissimilarity = form.cleaned_data['dissimilarity']
+            args['dissimilarity'] = dissimilarity
 
-            if enroll:
-                args['enrollment'] = (enroll[0], enroll[1])
-            time = form.cleaned_data['time']
-            if time:
-                args['time_start'] = time[0]
-                args['time_end'] = time[1]
-
-            days = form.cleaned_data['days']
-            if days:
-                args['day'] = days
-            dept = form.cleaned_data['dept']
-            if dept:
-                args['dept'] = dept
-
-            time_and_building = form.cleaned_data['time_and_building']
-            if time_and_building:
-                args['walking_time'] = time_and_building[0]
-                args['building_code'] = time_and_building[1]
+            demographics = forms.cleaned_data['demographics']
+            args['demographics'] = demographics
 
             if form.cleaned_data['show_args']:
                 context['args'] = 'args_to_ui = ' + json.dumps(args, indent=2)
