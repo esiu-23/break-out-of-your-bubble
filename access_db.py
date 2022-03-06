@@ -20,7 +20,7 @@ CENSUS_KEYS = set(["white", "black", "native", "asian", "pacific", "other"])
 '''
 I am trying to get the base numebers from the originating county. DONE
 From there I want to associate them with their header. DONE
-Then I want to store the +- threshold values in a dictionary
+Then I want to store the +- threshold values in a dictionary DONE
 Leverage those values with BETWEEN statements in build_where to get all counties within the range.
 
 '''
@@ -50,7 +50,7 @@ def find_counties(user_inputs, threshold):
 
     return[]
 
-def get_original(user_inputs, f_state, cursor):
+def get_original(user_inputs, f_state, cursor, threshold):
     '''
     '''
     home_state = user_inputs['state']
@@ -69,7 +69,14 @@ def get_original(user_inputs, f_state, cursor):
             f_state = build_from(select_dict, acs, census)
             query = s_state + f_state + w_state
             values = cursor.execute(query).fetchall()
-            param_dict[arg] = values[0][1]
+            if arg != "median_rent":
+                bot_range = max(values[0][1] - threshold, 0)
+                top_range = values[0][1] + threshold
+            else:
+                diff = values[0][1] * threshold
+                bot_range = max(values[0][1] - diff, 0)
+                top_range = values[0][1] + diff
+            param_dict[arg] = (bot_range, top_range)
 
 
     return param_dict
@@ -124,21 +131,21 @@ def build_where(user_inputs, threshold, acs, census):
     pieces = []
     params = []
     base_query = " WHERE elections.year IN (2012, 2016)"
-    where_dict = {
-        "naturalized": "acs.naturalized BETWEEN ()",
-        "limited_english": "acs.limited_english BETWEEN ()",
-        "low_ed_attain": "acs.low_ed_attain BETWEEN ()",
-        "below_poverty": "acs.below_poverty BETWEEN ()",
-        "median_rent":,
-        "uninsured": "acs.uninsured BETWEEN ()",
+    # where_dict = {
+    #     "naturalized": "acs.naturalized BETWEEN ()",
+    #     "limited_english": "acs.limited_english BETWEEN ()",
+    #     "low_ed_attain": "acs.low_ed_attain BETWEEN ()",
+    #     "below_poverty": "acs.below_poverty BETWEEN ()",
+    #     "median_rent":,
+    #     "uninsured": "acs.uninsured BETWEEN ()",
 
-        "white": "census.white BETWEEN ()",
-        "black": "census.black BETWEEN ()",
-        "native": "census.native BETWEEN ()",
-        "asian": "census.asian BETWEEN ()",
-        "pacific": "census.pacific BETWEEN ()",
-        "other" "census.other BETWEEN ()":
-    }
+    #     "white": "census.white BETWEEN ()",
+    #     "black": "census.black BETWEEN ()",
+    #     "native": "census.native BETWEEN ()",
+    #     "asian": "census.asian BETWEEN ()",
+    #     "pacific": "census.pacific BETWEEN ()",
+    #     "other" "census.other BETWEEN ()":
+    # }
 
     for arg, val in user_inputs.items():
         if arg == "state" or arg == "county":
