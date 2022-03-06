@@ -40,13 +40,13 @@ def find_counties(user_inputs, threshold):
     if not bool(user_inputs.keys()):
         return []
 
-    select_stmt, acs, census = adb.build_select(user_inputs)
+    select_stmt, acs, census = build_select(user_inputs)
 
-    from_stmt = adb.build_from(user_inputs, acs, census)
+    from_stmt = build_from(user_inputs, acs, census)
 
-    param_dict, original_query = adb.get_original(user_inputs, from_stmt, curse, threshold)
+    param_dict, original_query = get_original(user_inputs, from_stmt, curse, threshold)
 
-    where_statement, params = adb.build_where(user_inputs, param_dict, acs, census)
+    where_statement, params = build_where(user_inputs, param_dict, acs, census)
 
     query = select_stmt + from_stmt + where_statement
 
