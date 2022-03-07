@@ -93,8 +93,8 @@ def _build_dropdown(options):
 
 
 # Update with county drop down
-STATES = _build_dropdown([None] + _load_res_column('state_names.csv'))
-COUNTIES = _build_dropdown([None] + _load_res_column('county_names.csv'))
+STATES = _build_dropdown([None] + _load_res_column('state_list.csv'))
+COUNTIES = _build_dropdown([None] + _load_res_column('county_list.csv'))
 
 
 class IntegerRange(forms.MultiValueField):
