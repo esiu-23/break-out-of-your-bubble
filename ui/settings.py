@@ -11,9 +11,10 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent # THIS IS DIFFERENT
+BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -36,7 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'bubble122'
+    'search'
 
 ]
 
@@ -50,7 +51,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'bubblemapper.urls'
+ROOT_URLCONF = 'search.urls'
 
 TEMPLATES = [
     {
@@ -68,7 +69,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'bubblemapper.wsgi.application'
+WSGI_APPLICATION = 'ui.wsgi.application'
 
 
 # Database
@@ -77,7 +78,7 @@ WSGI_APPLICATION = 'bubblemapper.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3', # THIS IS DIFFERENT
+        'NAME': os.path.join(BASE_DIR, 'db')
     }
 }
 
