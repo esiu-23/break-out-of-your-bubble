@@ -127,8 +127,8 @@ class DissimilarityRange(IntegerRange):
 # Update with all of our demographics & suggestion text
 class SearchForm(forms.Form):
     
-    state = forms.ChoiceField(label='State', choices=STATES, required=True)
-    county = forms.ChoiceField(label='County', choices=COUNTIES, required=True)
+    # state = forms.ChoiceField(label='State', choices=STATES, required=True)
+    # county = forms.ChoiceField(label='County', choices=COUNTIES, required=True)
     
     dissimilarity = DissimilarityRange(
         label='Dissimilarity Range (lower/upper)',
@@ -138,13 +138,13 @@ class SearchForm(forms.Form):
         widget=forms.widgets.NumberInput,
         required=True)
     
-    demographics = forms.MultipleChoiceField(label='Demographics',
-                                     choices=COLUMN_NAMES,
-                                     widget=forms.CheckboxSelectMultiple,
-                                     required=True)
+    # demographics = forms.MultipleChoiceField(label='Demographics',
+    #                                  choices=COLUMN_NAMES,
+    #                                  widget=forms.CheckboxSelectMultiple,
+    #                                  required=True)
     
-    show_args = forms.BooleanField(label='Show args_to_ui',
-                                    required=False)
+    # show_args = forms.BooleanField(label='Show args_to_ui',
+    #                                 required=False)
 
 def home(request):
     context = {}
@@ -161,14 +161,16 @@ def home(request):
             dissimilarity = form.cleaned_data['dissimilarity']
             args['dissimilarity'] = dissimilarity
 
-            demographics = forms.cleaned_data['demographics']
-            args['demographics'] = demographics
+            # demographics = form.cleaned_data['demographics']
+            # args['demographics'] = demographics
 
-            if form.cleaned_data['show_args']:
-                context['args'] = 'args_to_ui = ' + json.dumps(args, indent=2)
+            # if form.cleaned_data['show_args']:
+            #     context['args'] = 'args_to_ui = ' + json.dumps(args, indent=2)
 
             try:
                 res = find_counties(args)
+            ### TEST LINE BELOW
+               # a = 1
             except Exception as e:
                 print('Exception caught')
                 bt = traceback.format_exception(*sys.exc_info()[:3])

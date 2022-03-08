@@ -2,12 +2,12 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Course Catalog Search</title>
+        <title>Project Bubble Trouble</title>
         <link rel="stylesheet" type="text/css" href="{% static "/main.css" %}" />
     </head>
     <body>
         <div id="header">
-            <h1>Course Catalog Search</h1>
+            <h1>Project Bubble Trouble</h1>
         </div>
         <div class="frame">
             <form method="get">
@@ -36,7 +36,7 @@
         <div class="frame">
             {% if result != None %}
             <div class="results">
-                <table class="courses">
+                <table class="outputs">
                     <tr>
                         {% for col in columns %}
                         <th>{{ col }}</th>
