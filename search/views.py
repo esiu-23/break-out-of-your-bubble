@@ -22,6 +22,7 @@ import os
 
 import geopandas as gpd
 import pandas as pd
+import fiona
 
 from functools import reduce
 from operator import and_
@@ -217,79 +218,83 @@ def home(request):
 
 ### EMBED BOKEH PLOT
 
-# def index(request):
+#def index(request):
 
-#     # Read in shapefile and examine data
-#     county_files = gpd.read_file('data/tl_2020_us_county.shp')
+    # Read in shapefile and examine data
+    # import fiona
 
-#     # Read in elections data and examine data
-#     elections = pd.read_csv('data/elections.csv')
-#     elections_2016 = elections[ elections["year"] == 2016]
+    #with fiona.open('tl_2020_us_county.shp') as county_files:    
+#     ax = geo.plot()
+    filename = 'tl_2020_us_county.shp'
+    file = open(filename)
+    county_files = gpd.read_file(file)
+    #county_files = gpd.read_file()
 
-#     # Convert GEOIDs column to match same numbering format as fips in the elections file
-#     geoids = county_files['GEOID'].tolist()
-#     stripped_ids = [ids.lstrip("0") for ids in geoids]
-#     county_files["stripped_geoids"] = stripped_ids
-#     county_files['stripped_geoids'] = county_files['stripped_geoids'].astype("int64")
-#     #county_files.head()
+    # Read in elections data and examine data
+    elections = pd.read_csv('data/elections.csv')
+    elections_2016 = elections[ elections["year"] == 2016]
 
-#     # Merge shapefile with elections data
-#     partisan_counties = county_files.merge(elections_2016, left_on = "stripped_geoids", right_on = "fips")
-#     partisan_counties["perc_red"] = partisan_counties["rvotes"] / (partisan_counties["rvotes"] + partisan_counties["dvotes"] )
+    # Convert GEOIDs column to match same numbering format as fips in the elections file
+    geoids = county_files['GEOID'].tolist()
+    stripped_ids = [ids.lstrip("0") for ids in geoids]
+    county_files["stripped_geoids"] = stripped_ids
+    county_files['stripped_geoids'] = county_files['stripped_geoids'].astype("int64")
 
-#     geosource = GeoJSONDataSource(geojson = partisan_counties.to_json())
+    # Merge shapefile with elections data
+    partisan_counties = county_files.merge(elections_2016, left_on = "stripped_geoids", right_on = "fips")
+    partisan_counties["perc_red"] = partisan_counties["rvotes"] / (partisan_counties["rvotes"] + partisan_counties["dvotes"] )
 
-#     # Define color palettes
-#     palette = brewer['RdBu'][10]
+    geosource = GeoJSONDataSource(geojson = partisan_counties.to_json())
 
-#     # Instantiate LinearColorMapper that linearly maps numbers in a range, into a sequence of colors.
-#     color_mapper = LinearColorMapper(palette = palette, low = 0, high = 100)
+    # Define color palettes
+    palette = brewer['RdBu'][10]
 
-#     # Define custom tick labels for color bar.
-#     tick_labels = {"0.0": "0%", "0.1": "10%", "0.2": "20%", "0.3": "30%",
-#     "0.4": "40%", "0.5": "50%", "0.6": "60%", "0.7": "70%", "0.8": "80%", 
-#     "0.9": "90%", "1.0": "100%"}
+    # Instantiate LinearColorMapper that linearly maps numbers in a range, into a sequence of colors.
+    color_mapper = LinearColorMapper(palette = palette, low = 0, high = 100)
 
-#     # Create color bar.
-#     color_bar = ColorBar(color_mapper = color_mapper, 
-#                         label_standoff = 10,
-#                         width = 500, height = 20,
-#                         border_line_color = None,
-#                         location = (0,0), 
-#                         orientation = "horizontal",
-#                         major_label_overrides = tick_labels)
+    # Define custom tick labels for color bar.
+    tick_labels = {"0.0": "0%", "0.1": "10%", "0.2": "20%", "0.3": "30%",
+    "0.4": "40%", "0.5": "50%", "0.6": "60%", "0.7": "70%", "0.8": "80%", 
+    "0.9": "90%", "1.0": "100%"}
 
-#     # Create figure object.
-#     p = figure(title = 'Map of the US by political party affiliation (2016)', 
-#             plot_height = 600,
-#             plot_width = 1200, 
-#             toolbar_location = 'below',
-#             tools = "pan,wheel_zoom,box_zoom,reset")
-#     p.xgrid.grid_line_color = None
-#     p.ygrid.grid_line_color = None
+    # Create color bar.
+    color_bar = ColorBar(color_mapper = color_mapper, 
+                        label_standoff = 10,
+                        width = 500, height = 20,
+                        border_line_color = None,
+                        location = (0,0), 
+                        orientation = "horizontal",
+                        major_label_overrides = tick_labels)
 
-#     # Render counties
-#     counties = p.patches("xs","ys", source = geosource,
-#                     fill_color = {"field" :'perc_red',
-#                                     "transform" : color_mapper},
-#                     line_color = "black", 
-#                     line_width = 0.25, 
-#                     fill_alpha = 1)
+    # Create figure object.
+    p = figure(title = 'Map of the US by political party affiliation (2016)', 
+            plot_height = 600,
+            plot_width = 1200, 
+            toolbar_location = 'below',
+            tools = "pan,wheel_zoom,box_zoom,reset")
+    p.xgrid.grid_line_color = None
+    p.ygrid.grid_line_color = None
 
-#     # Add hover tool
-#     p.add_tools(HoverTool(renderers = [counties],
-#                         tooltips = [("County", '@NAMELSAD'),
-#                                         ('Year', "@year"), 
-#                                         ('% Republican Votes','@perc_red'),
-#                                     ('% Democratic Votes','@perc_blue')]))   
-   
-#    #Store components 
-#     script, div = components(plot)
+    # Render counties
+    counties = p.patches("xs","ys", source = geosource,
+                    fill_color = {"field" :'perc_red',
+                                    "transform" : color_mapper},
+                    line_color = "black", 
+                    line_width = 0.25, 
+                    fill_alpha = 1)
 
-#     #Feed them to the Django template. Use render instead of render_to_response
-#     return render_to_response( 'bokeh/index.html',
-#             {'script' : script , 'div' : div} )
+    # Add hover tool
+    p.add_tools(HoverTool(renderers = [counties],
+                        tooltips = [("County", '@NAMELSAD'),
+                                        ('Year', "@year"), 
+                                        ('% Republican Votes','@perc_red'),
+                                    ('% Democratic Votes','@perc_blue')]))   
 
+#Store components 
+    script, div = components(p)
+
+    
+    return render(request, 'index.html', {'script' : script , 'div' : div})
 
     ## OLD return statement
-    return render(request, 'index.html', context)
+    #return render(request, 'index.html', context)
