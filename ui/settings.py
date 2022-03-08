@@ -79,7 +79,12 @@ WSGI_APPLICATION = 'ui.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, '/bubble_tables.db')
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3') 
+
+        # NAME: name of db
+        # USER: capp_cs_122
+        # HOST: localhost
+        # PORT: 5432
     }
 }
 
