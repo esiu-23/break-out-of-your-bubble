@@ -127,14 +127,21 @@ class DissimilarityRange(IntegerRange):
 # Update with all of our demographics & suggestion text
 class SearchForm(forms.Form):
     
-    # state = forms.ChoiceField(label='State', choices=STATES, required=True)
-    # county = forms.ChoiceField(label='County', choices=COUNTIES, required=True)
+    state = forms.ChoiceField(
+        label='State', 
+        choices=STATES, 
+        help_text= 'Select the state you currently live in', 
+        required=True)
+    
+    county = forms.ChoiceField(
+        label='County', 
+        choices=COUNTIES, 
+        help_text= 'Select the county you currently live in', 
+        required=True)
     
     dissimilarity = DissimilarityRange(
-        label='Dissimilarity Range (lower/upper)',
-        help_text="Choose how dissimilar a county can be from yours (e.g., entering 10 would mean \
-            we would surface all counties whose demographics vary within +/- 10'%' \
-                from the county you currently live in.",
+        label="Dissimilarity Range \n (+/- '%'))",
+        help_text='Choose your appetite for demographic dissimilarity: \n e.g., 5%',
         widget=forms.widgets.NumberInput,
         required=True)
     
@@ -143,8 +150,8 @@ class SearchForm(forms.Form):
     #                                  widget=forms.CheckboxSelectMultiple,
     #                                  required=True)
     
-    # show_args = forms.BooleanField(label='Show args_to_ui',
-    #                                 required=False)
+    show_args = forms.BooleanField(label='Show args_to_ui',
+                                    required=False)
 
 def home(request):
     context = {}
@@ -158,19 +165,17 @@ def home(request):
             # Convert form data to an args dictionary for find_counties
             args = {}
             
-            dissimilarity = form.cleaned_data['dissimilarity']
-            args['dissimilarity'] = dissimilarity
+            args['dissimilarity'] = form.cleaned_data['dissimilarity']
+            # args['demographics'] = form.cleaned_data['demographics']
+            
+            args['state'] = form.cleaned_data['state']
+            args['county'] = form.cleaned_data['county']
 
-            # demographics = form.cleaned_data['demographics']
-            # args['demographics'] = demographics
-
-            # if form.cleaned_data['show_args']:
-            #     context['args'] = 'args_to_ui = ' + json.dumps(args, indent=2)
+            if form.cleaned_data['show_args']:
+                context['args'] = 'args_to_ui = ' + json.dumps(args, indent=2)
 
             try:
                 res = find_counties(args)
-            ### TEST LINE BELOW
-               # a = 1
             except Exception as e:
                 print('Exception caught')
                 bt = traceback.format_exception(*sys.exc_info()[:3])
@@ -183,6 +188,7 @@ def home(request):
                 res = None
     else:
         form = SearchForm()
+        print(form)
 
     # Handle different responses of res
     if res is None:
