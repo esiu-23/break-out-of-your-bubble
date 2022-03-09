@@ -45,17 +45,16 @@ from access_db import find_counties
 NOPREF_STR = 'No preference'
 RES_DIR = os.path.join(os.path.dirname(__file__), '..', 'res')
 
-## Update our column names 
 COLUMN_NAMES = dict(
-    nat="naturalized",
-    lim_eng="limited_english",
-    low_ed="low_ed_attain",
-    below_pov="below_poverty",
-    med_rent="median_rent",
-    uninsured="uninsured",
-    county_name="county_name",
-    state_name="state_name",
-    racial_dem="racial_demography"
+    nat="% Naturalized Citizens",
+    lim_eng="% with Limited English",
+    low_ed="Low Ed Attain",
+    below_pov="% Below poverty line",
+    med_rent="Median rent",
+    uninsured="% Uninsured",
+    county_name="County name",
+    state_name="State name",
+    racial_dem="Racial demography"
 )
 
 
@@ -96,41 +95,22 @@ def _build_dropdown(options):
 # Update with county drop down
 STATES = _build_dropdown([None] + _load_res_column('state_list.csv'))
 COUNTIES = _build_dropdown([None] + _load_res_column('county_list.csv'))
-
-
-class IntegerRange(forms.MultiValueField):
-    def __init__(self, *args, **kwargs):
-        fields = (forms.IntegerField(),
-                  forms.IntegerField())
-        super(IntegerRange, self).__init__(fields=fields,
-                                           *args, **kwargs)
-
-    def compress(self, data_list):
-        if data_list and (data_list[0] is None or data_list[1] is None):
-            raise forms.ValidationError('Must specify both lower and upper '
-                                        'bound, or leave both blank.')
-
-        return data_list
-
-
-class DissimilarityRange(IntegerRange):
-    def compress(self, data_list):
-        super(DissimilarityRange, self).compress(data_list)
-        for v in data_list:
-            if not -100 <= v <= 100:
-                raise forms.ValidationError(
-                    'Dissimilarity range must be -100 and 100.')
-        if data_list and (data_list[1] < data_list[0]):
-            raise forms.ValidationError(
-                'Lower bound must not exceed upper bound.')
-        return data_list
+# DEMOS = (
+#     ("1", "% Naturalized Citizens"), 
+#     ("2". "% with Limited English"), 
+#     ("3", "Low Ed Attain"),
+#     ("4", "% Below poverty line"),
+#     ("5", "Median rent"),
+#     ("6", "% Uninsured"),
+#     ("7", "Racial demography"),
+#     )
 
 # Update with all of our demographics & suggestion text
 class SearchForm(forms.Form):
     
     state = forms.ChoiceField(
-        label='State', 
-        choices=STATES, 
+        label='State',
+        choices=STATES,
         help_text= 'Select the state you currently live in', 
         required=True)
     
@@ -140,14 +120,14 @@ class SearchForm(forms.Form):
         help_text= 'Select the county you currently live in', 
         required=True)
     
-    dissimilarity = DissimilarityRange(
-        label="Dissimilarity Range \n (+/- '%'))",
-        help_text='Choose your appetite for demographic dissimilarity: \n e.g., 5%',
-        widget=forms.widgets.NumberInput,
-        required=True)
-    
+    dissimilarity = forms.FloatField(
+        required=True, 
+        widget=forms.TextInput(attrs={'type': 'number','min': '0','max':'100','step':'0.01'}), 
+        label="Dissimilarity Range \n (+/- %))",
+        help_text='Choose your appetite for demographic dissimilarity: \n e.g., 5 means +/- 5%')
+
     # demographics = forms.MultipleChoiceField(label='Demographics',
-    #                                  choices=COLUMN_NAMES,
+    #                                  choices=DEMOS,
     #                                  widget=forms.CheckboxSelectMultiple,
     #                                  required=True)
     
@@ -167,7 +147,7 @@ def home(request):
             args = {}
             
             args['dissimilarity'] = form.cleaned_data['dissimilarity']
-            # args['demographics'] = form.cleaned_data['demographics']
+           # args['demographics'] = form.cleaned_data['demographics']
             
             args['state'] = form.cleaned_data['state']
             args['county'] = form.cleaned_data['county']
@@ -225,10 +205,10 @@ def home(request):
 
     #with fiona.open('tl_2020_us_county.shp') as county_files:    
 #     ax = geo.plot()
-    filename = 'tl_2020_us_county.shp'
-    file = open(filename)
-    county_files = gpd.read_file(file)
-    #county_files = gpd.read_file()
+#     filename = 'tl_2020_us_county.shp'
+#     file = open(filename)
+#     county_files = gpd.read_file(file)
+    county_files = gpd.read_file('tl_2020_us_county.shp')
 
     # Read in elections data and examine data
     elections = pd.read_csv('data/elections.csv')
@@ -297,4 +277,4 @@ def home(request):
     return render(request, 'index.html', {'script' : script , 'div' : div})
 
     ## OLD return statement
-    #return render(request, 'index.html', context)
+   # return render(request, 'index.html', context)

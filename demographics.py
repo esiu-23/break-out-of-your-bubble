@@ -133,6 +133,8 @@ for df in [acs_demos, census_demos]:
     # Split out state name
     df["state_draft"] = df["index"].str.split(",", expand=True)[1]
     df["state_name"] = df["state_draft"].str.split(":", expand=True)[0]
+    
+    acs_demos["state_name"] = acs_demos["state_name"].str.strip()
 
 # Delete process columns
 acs_demos.drop(columns = ["index", "state_draft"], inplace=True)
