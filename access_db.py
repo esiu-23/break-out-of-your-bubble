@@ -3,7 +3,6 @@ MSCAPP 122 Final Project
 Cole von Glahn
 '''
 
-from re import A
 import pandas as pd
 import sqlite3
 import os
@@ -17,23 +16,10 @@ ACS_KEYS = set(["naturalized", "limited_english", "low_ed_attain",
                 "below_poverty", "median_rent", "uninsured"])
 CENSUS_KEYS = set(["white", "black", "native", "asian", "pacific", "other"])
 
-'''
-I am trying to get the base numebers from the originating county. DONE
-From there I want to associate them with their header. DONE
-Then I want to store the +- threshold values in a dictionary DONE
-Leverage those values with BETWEEN statements in build_where to get all counties within the range.
-
-'''
-
-
-# INPUTS
-# I want a dictionary of key:value pairs mapping column headers to booleans
-# I want a flaot representing the %% threshold +- range for statistics
-
-def find_counties(user_inputs, threshold):
+def find_counties(user_inputs):
     '''
     '''
-
+    threshold = user_inputs['dissimilarity']
     conn = sqlite3.connect("bubble_tables.db")
     curse = conn.cursor()
 
@@ -51,7 +37,9 @@ def find_counties(user_inputs, threshold):
     query = select_stmt + from_stmt + where_statement
 
     rv = curse.execute(query, params).fetchall()
-
+    # add to the return tuples %red, %blue, %diff_from_original
+    # sort by %diff descending
+    # pop last element and insert at index 0
     conn.close
 
     return rv
@@ -59,11 +47,12 @@ def find_counties(user_inputs, threshold):
 def get_original(user_inputs, f_state, cursor, threshold):
     '''
     '''
-    ## Rework to get original query for later use, currently only saving the final key's query so the Select statement is undersupplied
 
     home_state = user_inputs['state']
     home_county = user_inputs['county']
     param_dict = {}
+    full_select = ''
+    threshold = threshold / 100
     
     w_state = f''' WHERE elections.state = "{home_state}"
                   AND elections.county = "{home_county}"
@@ -74,19 +63,22 @@ def get_original(user_inputs, f_state, cursor, threshold):
         if isinstance(val, bool) and val:
             select_dict[arg] = 0
             s_state, acs, census = build_select(select_dict, False)
+            full_select += s_state
             f_state = build_from(select_dict, acs, census)
             query = s_state + f_state + w_state
             values = cursor.execute(query).fetchall()
             if arg != "median_rent":
                 bot_range = max(values[0][2] - threshold, 0)
-                top_range = values[0][2] + threshold
+                top_range = min(values[0][2] + threshold, 1)
             else:
                 diff = values[0][2] * threshold
                 bot_range = max(values[0][2] - diff, 0)
-                top_range = values[0][2] + diff
+                top_range = min(values[0][2] + diff, 1)
             param_dict[arg] = (bot_range, top_range)
-        
-    return (param_dict, query)
+    
+    full_query = full_select + f_state + w_state
+
+    return (param_dict, full_query)
 
 
 def build_select(user_inputs, base = True):
