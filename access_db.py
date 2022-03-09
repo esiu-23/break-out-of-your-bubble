@@ -28,7 +28,7 @@ def find_counties(user_inputs):
 
     select_stmt, acs, census = build_select(user_inputs)
 
-    from_stmt = build_from(user_inputs, acs, census)
+    from_stmt = build_from(acs, census)
 
     param_dict = get_original(user_inputs, from_stmt, curse, threshold)
 
@@ -37,6 +37,55 @@ def find_counties(user_inputs):
     query = select_stmt + from_stmt + where_statement
 
     rv = curse.execute(query, params).fetchall()
+
+    output = ideology_sort(rv)
+
+    return output
+
+def ideology_sort(demo_group):
+    '''
+    '''
+    original = demo_group[0]
+
+    dvotes = original[2]
+    rvotes = original[3]
+    all_votes = dvotes + rvotes
+    perc_dem = dvotes / all_votes
+    perc_rep = rvotes / all_votes
+
+    o_rebuild = []
+    for element in original:
+        o_rebuild.append(element)
+    o_rebuild.insert(4, perc_dem)
+    o_rebuild.insert(5, perc_rep)
+
+    full_original = tuple(o_rebuild)   
+
+    output = []
+    for match in demo_group[1:]:
+        rebuild= []
+        dvotes = match[2]
+        rvotes = match[3]
+        all_votes = dvotes + rvotes
+        perc_dem = dvotes / all_votes
+        perc_rep = rvotes / all_votes
+        perc_diff = abs(perc_dem - original[4])
+        for element in match:
+            rebuild.append(element)
+        rebuild.insert(4, perc_dem)
+        rebuild.insert(5, perc_rep)
+        rebuild.insert(6, perc_diff)
+        tuple(rebuild)
+        output.append(rebuild)
+    
+    output = sorted(output, key = lambda x: x[6], reverse = True)
+    output.insert(0, full_original)
+
+    return output
+
+    
+
+
     # add to the return tuples %red, %blue, %diff_from_original
     # sort by %diff descending
     # pop last element and insert at index 0
@@ -51,7 +100,7 @@ def get_original(user_inputs, f_state, cursor, threshold):
     home_state = user_inputs['state']
     home_county = user_inputs['county']
     param_dict = {}
-    full_select = ''
+
     
     w_state = f''' WHERE elections.state = "{home_state}"
                   AND elections.county = "{home_county}"
@@ -103,7 +152,7 @@ def build_select(user_inputs, base = True):
     return (select_stmt, join_acs, join_census)
 
 
-def build_from(user_inputs, acs, census):
+def build_from(acs, census):
     '''
     '''
     
