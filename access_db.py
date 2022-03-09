@@ -19,7 +19,7 @@ CENSUS_KEYS = set(["white", "black", "native", "asian", "pacific", "other"])
 def find_counties(user_inputs):
     '''
     '''
-    threshold = user_inputs['dissimilarity']
+    threshold = user_inputs['dissimilarity'] / 100
     conn = sqlite3.connect("bubble_tables.db")
     curse = conn.cursor()
 
@@ -30,7 +30,7 @@ def find_counties(user_inputs):
 
     from_stmt = build_from(user_inputs, acs, census)
 
-    param_dict, original_query = get_original(user_inputs, from_stmt, curse, threshold)
+    param_dict = get_original(user_inputs, from_stmt, curse, threshold)
 
     where_statement, params = build_where(user_inputs, param_dict, acs, census)
 
@@ -52,7 +52,6 @@ def get_original(user_inputs, f_state, cursor, threshold):
     home_county = user_inputs['county']
     param_dict = {}
     full_select = ''
-    threshold = threshold / 100
     
     w_state = f''' WHERE elections.state = "{home_state}"
                   AND elections.county = "{home_county}"
@@ -63,7 +62,6 @@ def get_original(user_inputs, f_state, cursor, threshold):
         if isinstance(val, bool) and val:
             select_dict[arg] = 0
             s_state, acs, census = build_select(select_dict, False)
-            full_select += s_state
             f_state = build_from(select_dict, acs, census)
             query = s_state + f_state + w_state
             values = cursor.execute(query).fetchall()
@@ -73,12 +71,11 @@ def get_original(user_inputs, f_state, cursor, threshold):
             else:
                 diff = values[0][2] * threshold
                 bot_range = max(values[0][2] - diff, 0)
-                top_range = min(values[0][2] + diff, 1)
+                top_range = values[0][2] + diff
             param_dict[arg] = (bot_range, top_range)
     
-    full_query = full_select + f_state + w_state
 
-    return (param_dict, full_query)
+    return (param_dict)
 
 
 def build_select(user_inputs, base = True):
