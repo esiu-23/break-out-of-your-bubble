@@ -1,0 +1,15 @@
+﻿acs_demos
+naturalized: Percent of citizens who are citizens by naturalization
+limited_english: Percent of households that have limited English proficiency 
+low_ed_attain: Percent of individuals 25 or older whose highest educational attainment level is a high school degree or lower
+below_poverty: Percent of households whose income for the past 12 months was below the local poverty level
+median_rent: Median gross rent among renter-occupied housing units paying cash rent
+uninsured: Percent of individuals of all ages without health insurance coverage
+ 
+census_demos
+white: Percent of individuals of all ages who responded “White” only
+black: Percent of individuals of all ages who responded “Black or African American” only
+native: Percent of individuals of all ages who responded “American Indian or Alaska Native” only
+asian: Percent of individuals of all ages who responded “Asian” only
+pacific: Percent of individuals of all ages who responded “Native Hawaiian or Other Pacific Islander” only 
+other: Percent of individuals of all ages who responded “Other” or selected multiple races
