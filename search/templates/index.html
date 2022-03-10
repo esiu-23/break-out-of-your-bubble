@@ -12,15 +12,23 @@
             padding: 0;
             font-family: Verdana;
         }
-        
-        div#header {
-            background: rgb(120, 20, 0);
-            margin: 0;
-            padding: 0;
-        }
-        
+               
         div#header h1 {
             font-size: 18px;
+            color: #f5f5f5;
+            margin: 0;
+            padding: 7px;
+        }
+
+        div#header h2 {
+            font-size: 15px;
+            color: #f5f5f5;
+            margin: 0;
+            padding: 7px;
+        }
+
+        div#header h3 {
+            font-size: 13px;
             color: #f5f5f5;
             margin: 0;
             padding: 7px;
@@ -80,41 +88,29 @@
         
         table.form input {
             margin-right: 5px;
-        }
-        
-        table.form input#id_query {
             font-size: 18px;
         }
         
-        table.form ul#id_days {
+        table.form ul {
             margin: 0px;
             padding: 0px;
         }
         
-        table.form ul#id_days li {
+        table.form ul li {
             display: block;
             float: left;
             margin: 0px;
             padding: 0px;
         }
         
-        table.courses {
+        table.output {
             border: 1px solid #ddd;
             padding: 0px;
             margin: 0px;
-        }
-        
-        table.courses tr th {
             text-align: left;
         }
         
-        table.courses tr td,
-        table.courses tr th {
-            padding: 3px;
-            font-size: 12px;
-        }
-        
-        table.courses tr:nth-child(even) {
+        table.output tr:nth-child(even) {
             background: #eee;
         }
         
@@ -164,13 +160,13 @@
             {{ div | safe}}
             {{ script | safe}}
         </div>
-        <h3>Part 2:Find counties which are demographically similar, <br>
+        <h3>Part 2: Find counties which are demographically similar, <br>
             but politically different from your current county  </h3>
         <h3>Instructions:  </h3>  
         <ol>
             <li>Select your current state and county of residence.</li>
             <li>Enter in your tolerance for dissimilarity. <br>
-                For ex., if you enter in 5, you will only see counties that are within 5% <br>>
+                For ex., if you enter in 5, you will only see counties that are within 5% <br>
                 of your current county for the demographics you want to match against.</li>
             <li>Select the demographics you want to match against.</li>
             <li>Press submit! See which counties match your criteria. </li>
@@ -212,7 +208,6 @@
             {{ err|safe }}
         </div>
         {% endif %}
-
 
 
         <div class="frame">
