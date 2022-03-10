@@ -40,6 +40,8 @@ def find_counties(user_inputs):
 
     output = ideology_sort(rv)
 
+    conn.close
+
     return output
 
 def ideology_sort(demo_group):
@@ -69,7 +71,7 @@ def ideology_sort(demo_group):
         all_votes = dvotes + rvotes
         perc_dem = dvotes / all_votes
         perc_rep = rvotes / all_votes
-        perc_diff = abs(perc_dem - original[4])
+        perc_diff = abs(perc_dem - full_original[4])
         for element in match:
             rebuild.append(element)
         rebuild.insert(4, perc_dem)
@@ -89,9 +91,8 @@ def ideology_sort(demo_group):
     # add to the return tuples %red, %blue, %diff_from_original
     # sort by %diff descending
     # pop last element and insert at index 0
-    conn.close
+    
 
-    return rv
 
 def get_original(user_inputs, f_state, cursor, threshold):
     '''
@@ -111,7 +112,7 @@ def get_original(user_inputs, f_state, cursor, threshold):
         if isinstance(val, bool) and val:
             select_dict[arg] = 0
             s_state, acs, census = build_select(select_dict, False)
-            f_state = build_from(select_dict, acs, census)
+            f_state = build_from(acs, census)
             query = s_state + f_state + w_state
             values = cursor.execute(query).fetchall()
             if arg != "median_rent":
