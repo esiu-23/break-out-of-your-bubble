@@ -1,19 +1,3 @@
-# from django.shortcuts import render
-# from django.http import HttpResponse
-
-# # Create your views here.
-# # Request handler
-
-# ###This is where you are going to build most of the UI code.
-# ### Look into the various tools that were used on PA3 UI and translate them
-# ### Need to figure out the SQL connection
-
-# def interact(request):
-#     '''
-#     '''
-
-#     return HttpResponse('bubble up pup')
-
 import json
 import traceback
 import sys
@@ -22,23 +6,19 @@ import os
 
 import geopandas as gpd
 import pandas as pd
-import fiona
 
 from functools import reduce
 from operator import and_
 
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
 from django import forms
 
-from bokeh.io import show
-from bokeh.models import (CDSView, ColorBar, ColumnDataSource,
-                          CustomJS, CustomJSFilter, 
-                          GeoJSONDataSource, HoverTool,
-                          LinearColorMapper, Slider)
-from bokeh.layouts import column, row, widgetbox
+from bokeh.models import (ColorBar, GeoJSONDataSource, HoverTool,
+                          LinearColorMapper)
 from bokeh.palettes import brewer
 from bokeh.plotting import figure
 from bokeh.embed import components
+from bokeh.resources import INLINE
 
 from access_db import find_counties
 
@@ -95,15 +75,7 @@ def _build_dropdown(options):
 # Update with county drop down
 STATES = _build_dropdown([None] + _load_res_column('state_list.csv'))
 COUNTIES = _build_dropdown([None] + _load_res_column('county_list.csv'))
-# DEMOS = (
-#     ("1", "% Naturalized Citizens"), 
-#     ("2". "% with Limited English"), 
-#     ("3", "Low Ed Attain"),
-#     ("4", "% Below poverty line"),
-#     ("5", "Median rent"),
-#     ("6", "% Uninsured"),
-#     ("7", "Racial demography"),
-#     )
+DEMOS = _build_dropdown(_load_res_column('demos_list.csv'))
 
 # Update with all of our demographics & suggestion text
 class SearchForm(forms.Form):
@@ -126,10 +98,10 @@ class SearchForm(forms.Form):
         label="Dissimilarity Range \n (+/- %))",
         help_text='Choose your appetite for demographic dissimilarity: \n e.g., 5 means +/- 5%')
 
-    # demographics = forms.MultipleChoiceField(label='Demographics',
-    #                                  choices=DEMOS,
-    #                                  widget=forms.CheckboxSelectMultiple,
-    #                                  required=True)
+    demographics = forms.MultipleChoiceField(label='Demographics',
+                                     choices=DEMOS,
+                                     widget=forms.CheckboxSelectMultiple,
+                                     required=True)
     
     show_args = forms.BooleanField(label='Show args_to_ui',
                                     required=False)
@@ -147,7 +119,7 @@ def home(request):
             args = {}
             
             args['dissimilarity'] = form.cleaned_data['dissimilarity']
-           # args['demographics'] = form.cleaned_data['demographics']
+            args['demographics'] = form.cleaned_data['demographics']
             
             args['state'] = form.cleaned_data['state']
             args['county'] = form.cleaned_data['county']
@@ -169,7 +141,6 @@ def home(request):
                 res = None
     else:
         form = SearchForm()
-        print(form)
 
     # Handle different responses of res
     if res is None:
@@ -198,17 +169,8 @@ def home(request):
 
 ### EMBED BOKEH PLOT
 
-#def index(request):
-
     # Read in shapefile and examine data
-    # import fiona
-
-    #with fiona.open('tl_2020_us_county.shp') as county_files:    
-#     ax = geo.plot()
-#     filename = 'tl_2020_us_county.shp'
-#     file = open(filename)
-#     county_files = gpd.read_file(file)
-    county_files = gpd.read_file('tl_2020_us_county.shp')
+    county_files = gpd.read_file('data/tl_2020_us_county.shp')
 
     # Read in elections data and examine data
     elections = pd.read_csv('data/elections.csv')
@@ -219,10 +181,13 @@ def home(request):
     stripped_ids = [ids.lstrip("0") for ids in geoids]
     county_files["stripped_geoids"] = stripped_ids
     county_files['stripped_geoids'] = county_files['stripped_geoids'].astype("int64")
+    county_files['STATEFP'] = county_files['STATEFP'].astype("int64")
+    contiguous = county_files[county_files.STATEFP != 15]
 
     # Merge shapefile with elections data
-    partisan_counties = county_files.merge(elections_2016, left_on = "stripped_geoids", right_on = "fips")
-    partisan_counties["perc_red"] = partisan_counties["rvotes"] / (partisan_counties["rvotes"] + partisan_counties["dvotes"] )
+    partisan_counties = contiguous.merge(elections_2016, left_on = "stripped_geoids", right_on = "fips")
+    partisan_counties["perc_red"] = (partisan_counties["rvotes"] / (partisan_counties["rvotes"] + partisan_counties["dvotes"] )) * 100
+    partisan_counties["perc_blue"] = (partisan_counties["dvotes"] / (partisan_counties["rvotes"] + partisan_counties["dvotes"] )) * 100
 
     geosource = GeoJSONDataSource(geojson = partisan_counties.to_json())
 
@@ -248,8 +213,8 @@ def home(request):
 
     # Create figure object.
     p = figure(title = 'Map of the US by political party affiliation (2016)', 
-            plot_height = 600,
-            plot_width = 1200, 
+            plot_height = 400,
+            plot_width = 600, 
             toolbar_location = 'below',
             tools = "pan,wheel_zoom,box_zoom,reset")
     p.xgrid.grid_line_color = None
@@ -270,11 +235,11 @@ def home(request):
                                         ('% Republican Votes','@perc_red'),
                                     ('% Democratic Votes','@perc_blue')]))   
 
-#Store components 
+    #Store components 
     script, div = components(p)
 
+    context['script'] = script
+    context['div'] = div
+    context['resources'] = INLINE.render
     
-    return render(request, 'index.html', {'script' : script , 'div' : div})
-
-    ## OLD return statement
-   # return render(request, 'index.html', context)
+    return render(request, 'index.html', context)
