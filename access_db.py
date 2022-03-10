@@ -21,16 +21,16 @@ CENSUS_KEYS = set(["white", "black", "native", "asian", "pacific", "other"])
 INPUT_TRANSLATION = {
         "% Naturalized Citizens": "naturalized",
         "% with Limited English": "limited_english",
-        "Low Ed Attain": "low_ed_attain",
+        "% Low Ed Attain": "low_ed_attain",
         "% Below poverty line": "below_poverty",
         "Median rent": "median_rent",
         "% Uninsured": "uninsured",
-        "White": "white",
-        "Black": "black",
-        "Native": "native",
-        "Asian": "asian",
-        "Pacific": "pacific",
-        "Other": "other"
+        "% White": "white",
+        "% Black": "black",
+        "% Native": "native",
+        "% Asian": "asian",
+        "% Pacific": "pacific",
+        "% Other": "other"
 }
 
 def find_counties(user_inputs):
@@ -39,6 +39,7 @@ def find_counties(user_inputs):
     threshold = user_inputs['dissimilarity'] / 100
     conn = sqlite3.connect("bubble_tables.db")
     curse = conn.cursor()
+
     translated = []
     for demo in user_inputs['demographics']:
         translated.append(INPUT_TRANSLATION[demo])
@@ -60,10 +61,26 @@ def find_counties(user_inputs):
     rv = curse.execute(query, params).fetchall()
 
     output = ideology_sort(rv)
-
+    hdr = get_header(curse)
+    
     conn.close
 
-    return output
+    return (hdr, output)
+
+
+def get_header(cursor):
+    '''
+    Given a cursor object, returns the appropriate header (column names)
+    '''
+    header = []
+
+    for i in cursor.description:
+        s = i[0]
+        if "." in s:
+            s = s[s.find(".")+1:]
+        header.append(s)
+
+    return header
 
 
 def build_select(user_inputs, base = True):
@@ -197,8 +214,10 @@ def ideology_sort(demo_group):
     o_rebuild = []
     for element in original:
         o_rebuild.append(element)
+        print(o_rebuild)
     o_rebuild.insert(4, perc_dem)
     o_rebuild.insert(5, perc_rep)
+    o_rebuild.append(0.0)
 
     full_original = tuple(o_rebuild)   
 
