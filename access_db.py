@@ -32,7 +32,7 @@ def find_counties(user_inputs):
 
     param_dict = get_original(user_inputs, from_stmt, curse, threshold)
 
-    where_statement, params = build_where(user_inputs, param_dict, acs, census)
+    where_statement, params = build_where(user_inputs, param_dict)
 
     query = select_stmt + from_stmt + where_statement
 
@@ -83,7 +83,7 @@ def build_from(acs, census):
     return from_stmt
 
 
-def build_where(user_inputs, param_dict, acs, census):
+def build_where(user_inputs, param_dict):
     '''
     '''
 
@@ -121,6 +121,40 @@ def build_where(user_inputs, param_dict, acs, census):
     where_stmt = base_query + conditions
 
     return (where_stmt, params)
+
+
+def get_original(user_inputs, f_state, cursor, threshold):
+    '''
+    '''
+
+    home_state = user_inputs['state']
+    home_county = user_inputs['county']
+    param_dict = {}
+
+    
+    w_state = f''' WHERE elections.state = "{home_state}"
+                  AND elections.county = "{home_county}"
+                  AND elections.year = 2016'''
+
+    for arg, val in user_inputs.items():
+        select_dict = {}
+        if isinstance(val, bool) and val:
+            select_dict[arg] = 0
+            s_state, acs, census = build_select(select_dict, False)
+            f_state = build_from(acs, census)
+            query = s_state + f_state + w_state
+            values = cursor.execute(query).fetchall()
+            if arg != "median_rent":
+                bot_range = max(values[0][2] - threshold, 0)
+                top_range = min(values[0][2] + threshold, 1)
+            else:
+                diff = values[0][2] * threshold
+                bot_range = max(values[0][2] - diff, 0)
+                top_range = values[0][2] + diff
+            param_dict[arg] = (bot_range, top_range)
+    
+
+    return (param_dict)
 
 
 def ideology_sort(demo_group):
@@ -163,38 +197,4 @@ def ideology_sort(demo_group):
     output.insert(0, full_original)
 
     return output
-
-
-def get_original(user_inputs, f_state, cursor, threshold):
-    '''
-    '''
-
-    home_state = user_inputs['state']
-    home_county = user_inputs['county']
-    param_dict = {}
-
-    
-    w_state = f''' WHERE elections.state = "{home_state}"
-                  AND elections.county = "{home_county}"
-                  AND elections.year = 2016'''
-
-    for arg, val in user_inputs.items():
-        select_dict = {}
-        if isinstance(val, bool) and val:
-            select_dict[arg] = 0
-            s_state, acs, census = build_select(select_dict, False)
-            f_state = build_from(acs, census)
-            query = s_state + f_state + w_state
-            values = cursor.execute(query).fetchall()
-            if arg != "median_rent":
-                bot_range = max(values[0][2] - threshold, 0)
-                top_range = min(values[0][2] + threshold, 1)
-            else:
-                diff = values[0][2] * threshold
-                bot_range = max(values[0][2] - diff, 0)
-                top_range = values[0][2] + diff
-            param_dict[arg] = (bot_range, top_range)
-    
-
-    return (param_dict)
 
