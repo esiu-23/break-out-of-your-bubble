@@ -3,6 +3,8 @@ MSCAPP 122 Final Project
 Cole von Glahn
 '''
 
+
+
 import pandas as pd
 import sqlite3
 import os
@@ -48,22 +50,29 @@ def find_counties(user_inputs):
 def build_select(user_inputs, base = True):
     '''
     '''
+    # Parameterize
     query_extension = ''
     join_acs = False
     join_census = False
     if base:
         base_fragment = '''SELECT elections.state, elections.county, elections.dvotes, elections.rvotes'''
+        for arg in user_inputs['demographics']:
+            if arg in ACS_KEYS:
+                query_extension += f", acs.{arg}"
+                join_acs = True
+            if arg in CENSUS_KEYS:
+                query_extension += f", census.{arg}"
+                join_census = True
     else:
         base_fragment = "SELECT elections.state, elections.county"
+        for arg in user_inputs:
+            if arg in ACS_KEYS:
+                query_extension += f", acs.{arg}"
+                join_acs = True
+            if arg in CENSUS_KEYS:
+                query_extension += f", census.{arg}"
+                join_census = True
 
-    # parameterize to defend against injection
-    for key in user_inputs:
-        if key in ACS_KEYS:
-            query_extension += f", acs.{key}"
-            join_acs = True
-        if key in CENSUS_KEYS:
-            query_extension += f", census.{key}"
-            join_census = True
     
     select_stmt = base_fragment + query_extension
 
@@ -106,13 +115,14 @@ def build_where(user_inputs, param_dict):
         "other": "census.other BETWEEN ? AND ?"
     }
 
-    for arg, val in user_inputs.items():
-        if arg == "state" or arg == "county":
-            continue
-        if isinstance(val, bool) and val:
-            params.append(param_dict[arg][0])
-            params.append(param_dict[arg][1])
-            pieces.append(where_dict[arg])
+    #for arg, val in user_inputs.items():
+    for arg in user_inputs['demographics']:
+        #if arg == "state" or arg == "county":
+        #    continue
+        #if isinstance(val, bool) and val:
+        params.append(param_dict[arg][0])
+        params.append(param_dict[arg][1])
+        pieces.append(where_dict[arg])
 
     if len(pieces) > 0:
         conditions = "AND " + " AND ".join(pieces)
@@ -136,25 +146,26 @@ def get_original(user_inputs, f_state, cursor, threshold):
                   AND elections.county = "{home_county}"
                   AND elections.year = 2016'''
 
-    for arg, val in user_inputs.items():
+    #for arg, val in user_inputs.items():
+    for arg in user_inputs['demographics']:
         select_dict = {}
-        if isinstance(val, bool) and val:
-            select_dict[arg] = 0
-            s_state, acs, census = build_select(select_dict, False)
-            f_state = build_from(acs, census)
-            query = s_state + f_state + w_state
-            values = cursor.execute(query).fetchall()
-            if arg != "median_rent":
-                bot_range = max(values[0][2] - threshold, 0)
-                top_range = min(values[0][2] + threshold, 1)
-            else:
-                diff = values[0][2] * threshold
-                bot_range = max(values[0][2] - diff, 0)
-                top_range = values[0][2] + diff
-            param_dict[arg] = (bot_range, top_range)
+        #if isinstance(val, bool) and val:
+        select_dict[arg] = 0
+        s_state, acs, census = build_select(select_dict, False)
+        f_state = build_from(acs, census)
+        query = s_state + f_state + w_state
+        values = cursor.execute(query).fetchall()
+        if arg != "median_rent":
+            bot_range = max(values[0][2] - threshold, 0)
+            top_range = min(values[0][2] + threshold, 1)
+        else:
+            diff = values[0][2] * threshold
+            bot_range = max(values[0][2] - diff, 0)
+            top_range = values[0][2] + diff
+        param_dict[arg] = (bot_range, top_range)
     
 
-    return (param_dict)
+    return param_dict
 
 
 def ideology_sort(demo_group):
