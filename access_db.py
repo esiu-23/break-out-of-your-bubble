@@ -18,12 +18,32 @@ ACS_KEYS = set(["naturalized", "limited_english", "low_ed_attain",
                 "below_poverty", "median_rent", "uninsured"])
 CENSUS_KEYS = set(["white", "black", "native", "asian", "pacific", "other"])
 
+INPUT_TRANSLATION = {
+        "% Naturalized Citizens": "naturalized",
+        "% with Limited English": "limited_english",
+        "Low Ed Attain": "low_ed_attain",
+        "% Below poverty line": "below_poverty",
+        "Median rent": "median_rent",
+        "% Uninsured": "uninsured",
+        "White": "white",
+        "Black": "black",
+        "Native": "native",
+        "Asian": "asian",
+        "Pacific": "pacific",
+        "Other": "other"
+}
+
 def find_counties(user_inputs):
     '''
     '''
     threshold = user_inputs['dissimilarity'] / 100
     conn = sqlite3.connect("bubble_tables.db")
     curse = conn.cursor()
+    translated = []
+    for demo in user_inputs['demographics']:
+        translated.append(INPUT_TRANSLATION[demo])
+    user_inputs['demographics'] = translated
+        
 
     if not bool(user_inputs.keys()):
         return []
@@ -115,11 +135,7 @@ def build_where(user_inputs, param_dict):
         "other": "census.other BETWEEN ? AND ?"
     }
 
-    #for arg, val in user_inputs.items():
     for arg in user_inputs['demographics']:
-        #if arg == "state" or arg == "county":
-        #    continue
-        #if isinstance(val, bool) and val:
         params.append(param_dict[arg][0])
         params.append(param_dict[arg][1])
         pieces.append(where_dict[arg])
