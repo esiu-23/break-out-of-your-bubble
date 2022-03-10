@@ -42,8 +42,7 @@ def find_counties(user_inputs):
     translated = []
     for demo in user_inputs['demographics']:
         translated.append(INPUT_TRANSLATION[demo])
-    user_inputs['demographics'] = translated
-        
+    user_inputs['demographics'] = translated        
 
     if not bool(user_inputs.keys()):
         return []
@@ -188,7 +187,7 @@ def ideology_sort(demo_group):
     '''
     '''
     original = demo_group[0]
-
+    print(original)
     dvotes = original[2]
     rvotes = original[3]
     all_votes = dvotes + rvotes
