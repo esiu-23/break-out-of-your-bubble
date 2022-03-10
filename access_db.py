@@ -44,89 +44,6 @@ def find_counties(user_inputs):
 
     return output
 
-def ideology_sort(demo_group):
-    '''
-    '''
-    original = demo_group[0]
-
-    dvotes = original[2]
-    rvotes = original[3]
-    all_votes = dvotes + rvotes
-    perc_dem = dvotes / all_votes
-    perc_rep = rvotes / all_votes
-
-    o_rebuild = []
-    for element in original:
-        o_rebuild.append(element)
-    o_rebuild.insert(4, perc_dem)
-    o_rebuild.insert(5, perc_rep)
-
-    full_original = tuple(o_rebuild)   
-
-    output = []
-    for match in demo_group[1:]:
-        rebuild= []
-        dvotes = match[2]
-        rvotes = match[3]
-        all_votes = dvotes + rvotes
-        perc_dem = dvotes / all_votes
-        perc_rep = rvotes / all_votes
-        perc_diff = abs(perc_dem - full_original[4])
-        for element in match:
-            rebuild.append(element)
-        rebuild.insert(4, perc_dem)
-        rebuild.insert(5, perc_rep)
-        rebuild.insert(6, perc_diff)
-        tuple(rebuild)
-        output.append(rebuild)
-    
-    output = sorted(output, key = lambda x: x[6], reverse = True)
-    output.insert(0, full_original)
-
-    return output
-
-    
-
-
-    # add to the return tuples %red, %blue, %diff_from_original
-    # sort by %diff descending
-    # pop last element and insert at index 0
-    
-
-
-def get_original(user_inputs, f_state, cursor, threshold):
-    '''
-    '''
-
-    home_state = user_inputs['state']
-    home_county = user_inputs['county']
-    param_dict = {}
-
-    
-    w_state = f''' WHERE elections.state = "{home_state}"
-                  AND elections.county = "{home_county}"
-                  AND elections.year = 2016'''
-
-    for arg, val in user_inputs.items():
-        select_dict = {}
-        if isinstance(val, bool) and val:
-            select_dict[arg] = 0
-            s_state, acs, census = build_select(select_dict, False)
-            f_state = build_from(acs, census)
-            query = s_state + f_state + w_state
-            values = cursor.execute(query).fetchall()
-            if arg != "median_rent":
-                bot_range = max(values[0][2] - threshold, 0)
-                top_range = min(values[0][2] + threshold, 1)
-            else:
-                diff = values[0][2] * threshold
-                bot_range = max(values[0][2] - diff, 0)
-                top_range = values[0][2] + diff
-            param_dict[arg] = (bot_range, top_range)
-    
-
-    return (param_dict)
-
 
 def build_select(user_inputs, base = True):
     '''
@@ -169,9 +86,6 @@ def build_from(acs, census):
 def build_where(user_inputs, param_dict, acs, census):
     '''
     '''
-    ## How do you want to handle median rent?
-    ## Implement the +- either in here or in a dedicated helper to here
-
 
     pieces = []
     params = []
@@ -200,7 +114,87 @@ def build_where(user_inputs, param_dict, acs, census):
             params.append(param_dict[arg][1])
             pieces.append(where_dict[arg])
 
-    conditions = "AND " + " AND ".join(pieces)
+    if len(pieces) > 0:
+        conditions = "AND " + " AND ".join(pieces)
+    else:
+        conditions = ''
     where_stmt = base_query + conditions
+
     return (where_stmt, params)
+
+
+def ideology_sort(demo_group):
+    '''
+    '''
+    original = demo_group[0]
+
+    dvotes = original[2]
+    rvotes = original[3]
+    all_votes = dvotes + rvotes
+    perc_dem = dvotes / all_votes
+    perc_rep = rvotes / all_votes
+
+    o_rebuild = []
+    for element in original:
+        o_rebuild.append(element)
+    o_rebuild.insert(4, perc_dem)
+    o_rebuild.insert(5, perc_rep)
+
+    full_original = tuple(o_rebuild)   
+
+    output = []
+    for match in demo_group[1:]:
+        rebuild= []
+        dvotes = match[2]
+        rvotes = match[3]
+        all_votes = dvotes + rvotes
+        perc_dem = dvotes / all_votes
+        perc_rep = rvotes / all_votes
+        perc_diff = abs(perc_dem - full_original[4])
+        for element in match:
+            rebuild.append(element)
+        rebuild.insert(4, perc_dem)
+        rebuild.insert(5, perc_rep)
+        rebuild.insert(6, perc_diff)
+        tuple(rebuild)
+        output.append(rebuild)
+    
+    output = sorted(output, key = lambda x: x[6], reverse = True)
+    output.insert(0, full_original)
+
+    return output
+
+
+def get_original(user_inputs, f_state, cursor, threshold):
+    '''
+    '''
+
+    home_state = user_inputs['state']
+    home_county = user_inputs['county']
+    param_dict = {}
+
+    
+    w_state = f''' WHERE elections.state = "{home_state}"
+                  AND elections.county = "{home_county}"
+                  AND elections.year = 2016'''
+
+    for arg, val in user_inputs.items():
+        select_dict = {}
+        if isinstance(val, bool) and val:
+            select_dict[arg] = 0
+            s_state, acs, census = build_select(select_dict, False)
+            f_state = build_from(acs, census)
+            query = s_state + f_state + w_state
+            values = cursor.execute(query).fetchall()
+            if arg != "median_rent":
+                bot_range = max(values[0][2] - threshold, 0)
+                top_range = min(values[0][2] + threshold, 1)
+            else:
+                diff = values[0][2] * threshold
+                bot_range = max(values[0][2] - diff, 0)
+                top_range = values[0][2] + diff
+            param_dict[arg] = (bot_range, top_range)
+    
+
+    return (param_dict)
 
