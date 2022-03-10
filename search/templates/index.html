@@ -3,20 +3,50 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link href=”http://cdn.pydata.org/bokeh/release/bokeh-2.3.2.min.css
-           " rel=”stylesheet” type=”text/css”>
-        <link href=”http://cdn.pydata.org/bokeh/release/bokeh-widgets-2.3.2.min.css"
-           rel=”stylesheet” type=”text/css”>
-
+         {{ resources | safe }}
         <title>Project Bubble Trouble</title>
         <link rel="stylesheet" type="text/css" href="{% static "/main.css" %}" />
     </head>
     <body>
         <div id="header">
             <h1>Break out of your bubble</h1>
-                Find politically different but demographically similar counties
-            </h1>
+                Political polarization among Americans has grown rapidly in the last 40 years — <br>
+                more than in Canada, the United Kingdom, Australia or Germany — a phenomenon possibly <br>
+                due to increased racial division, the rise of partisan cable news and changes in the <br>
+                composition of the Democratic and Republican parties. Increasingly, where we live and who <br>
+                we choose to surround ourselves with define our political affiliation. We created this project <br>
+                to help people identify areas they would thrive in (through demographic indicators), but where they <br>
+                would be exposed to more politically diverse attitudes than their current residence.<br>
+                <br>
+                Source: Brown University
+            <h3> Part 1: Explore the US's current partisan divide </h3> 
+            Explore the map below. Hover over the map to see the county name, and <br> 
+            that county's % Republican and % Democratic votes in the 2016 election. <br>
+            <br>
+            <ul>
+            <li>What trends do you see?</li>
+            </ul>
+            <br>
+            Note: To simplify the visualization, we only included the contiguous 48 states in this map. 
         </div>
+        <div>
+            {{ div | safe}}
+            {{ script | safe}}
+        </div>
+        <h3>Part 2:Find counties which are demographically similar, <br>
+            but politically different from your current county  </h3>
+        <h3>Instructions:  </h3>  
+        <ol>
+            <li>Select your current state and county of residence.</li>
+            <li>Enter in your tolerance for dissimilarity. <br>
+                For ex., if you enter in 5, you will only see counties that are within 5% <br>>
+                of your current county for the demographics you want to match against.</li>
+            <li>Select the demographics you want to match against.</li>
+            <li>Press submit! See which counties match your criteria. </li>
+
+            The county in which you currently reside will always be shown first. <br>
+            The rest of the responses are sorted so the most politically different counties are at the top.<br>
+        </ol>
         <div class="frame">
             <form method="get">
                 {% csrf_token %}
@@ -26,6 +56,19 @@
                 <input type="submit" value="Submit" />
             </form>
         </div>
+        <div id="header">
+            <h3> Demographics Legend: </h3>
+            <ul>
+                <li>% Naturalized Citizens: Percent of citizens who are citizens by naturalization </li>
+                <li>% with Limited English: Percent of households that have limited English proficiency </li>
+                <li>Low Ed Attain: Percent of individuals 25 or older whose highest educational attainment level is a high school degree or lower </li>
+                <li>% Below poverty line: Percent of households whose income for the past 12 months was below the local poverty level </li>
+                <li>Median rent: Median gross rent among renter-occupied housing units paying cash rent </li>
+                <li>% Uninsured: Percent of individuals of all ages without health insurance coverage </li>
+                <li>Racial demography: Racial makeup (% White, % Asian, etc.). Categories are defined by the Census</li>
+                <br>
+                Source: 2015 Census data
+            </ul>
 
         {% if args %}
         <div class="args">
@@ -63,8 +106,8 @@
             {% endif %}
         </div>
     </body>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.3.2.min.js"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.3.2.min.js"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.3.2.min.js"></script>
-    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-api-2.3.2.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-2.4.2.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-widgets-2.4.2.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-tables-2.4.2.min.js"></script>
+    <script src="https://cdn.bokeh.org/bokeh/release/bokeh-api-2.4.2.min.js"></script>
 </html>
