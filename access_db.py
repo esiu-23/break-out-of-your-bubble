@@ -1,6 +1,6 @@
 '''
 MSCAPP 122 Final Project
-Cole von Glahn
+Cole von Glahn, Evelyn Siu, Carolyn Vilter
 '''
 
 
@@ -9,7 +9,7 @@ import pandas as pd
 import sqlite3
 import os
 
-# Use this filename for the database
+#filename for the database
 DATA_DIR = os.path.dirname(__file__)
 DATABASE_FILENAME = os.path.join(DATA_DIR, 'bubble_tables.db')
 
@@ -35,8 +35,23 @@ INPUT_TRANSLATION = {
 
 def find_counties(user_inputs):
     '''
+    Compares the political ideology and demographic characteristics of U.S.
+    counties to the given county of interest. Determines similarities within
+    a user-defined threshold and returns the demographically similar counties
+    in descending order of political dissimilarity.
+
+    args:
+        user_inputs (dict): A dictionary containing the starting county,
+            characteristics of interest, and dissimilarity tolerance.
+    
+    outputs:
+        hdr (list): Columns associated with the characteristics of interest.
+        output (list of tuples): Contains collected counties within threshold,
+            sorted by dissimilarity.
     '''
+    # Percentile conversion for threshold
     threshold = user_inputs['dissimilarity'] / 100
+
     conn = sqlite3.connect("bubble_tables.db")
     curse = conn.cursor()
 
