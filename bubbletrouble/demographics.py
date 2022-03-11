@@ -57,12 +57,12 @@ acs_demos["state_fips"] = acs["STATE"]
 acs_demos["county_fips"] = acs["COUNTY"]
 
 # Percent of US citizens that are citizens by naturalization
-acs_demos["naturalized"] = acs["B05001_005E"] / (acs["B05001_001E"] -
-                                                                    acs["B05001_006E"])
+acs_demos["naturalized"] = (acs["B05001_005E"] / (acs["B05001_001E"] -
+                                                    acs["B05001_006E"])) * 100
 
 # Percent of households with limited English proficiency
-acs_demos["limited_english"] = (acs["B16002_004E"] + acs["B16002_007E"] +
-                        acs["B16002_010E"] + acs["B16002_013E"]) / acs["B16002_001E"]
+acs_demos["limited_english"] = ((acs["B16002_004E"] + acs["B16002_007E"] +
+                        acs["B16002_010E"] + acs["B16002_013E"]) / acs["B16002_001E"]) * 100
 
 # Percent of individuals with highest education attainment HS degree or lower
 edvars_men = ["B15002_003E", "B15002_004E", "B15002_005E", "B15002_006E", "B15002_007E",
@@ -72,10 +72,10 @@ edvars_women = ["B15002_020E", "B15002_021E", "B15002_022E", "B15002_023E", "B15
 acs_demos["low_ed_attain"] = 0
 for var in edvars_men + edvars_women:
     acs_demos["low_ed_attain"] += acs[var]
-acs_demos["low_ed_attain"] = acs_demos["low_ed_attain"] / acs["B15002_001E"]
+acs_demos["low_ed_attain"] = (acs_demos["low_ed_attain"] / acs["B15002_001E"]) * 100
 
 # Percent of households below poverty level
-acs_demos["below_poverty"] = acs["B17001_002E"] / acs["B17001_001E"]
+acs_demos["below_poverty"] = acs["B17001_002E"] / acs["B17001_001E"] * 100
 
 # Households' median rent
 acs_demos["median_rent"] = acs["B25064_001E"]
@@ -88,7 +88,7 @@ insvars_women = ["B27001_033E", "B27001_036E", "B27001_039E", "B27001_042E", "B2
 acs_demos["uninsured"] = 0
 for var in insvars_men + insvars_women:
     acs_demos["uninsured"] += acs[var]
-acs_demos["uninsured"] = acs_demos["uninsured"] / acs["B27001_001E"]
+acs_demos["uninsured"] = acs_demos["uninsured"] / acs["B27001_001E"] * 100
 
 
 # 2/2: CENSUS (race)
@@ -97,24 +97,24 @@ census_demos["state_fips"] = census["STATE"]
 census_demos["county_fips"] = census["COUNTY"]
 
 # Percent White
-census_demos["white"] = census["P008003"] / census["P008001"]
+census_demos["white"] = census["P008003"] / census["P008001"] * 100
 
 # Percent Black or African American
-census_demos["black"] = census["P008004"] / census["P008001"]
+census_demos["black"] = census["P008004"] / census["P008001"] * 100
 
 # Percent American Indian and Alaska Native
-census_demos["native"] = census["P008005"] / census["P008001"]
+census_demos["native"] = census["P008005"] / census["P008001"] * 100
 
 # Percent Asian
-census_demos["asian"] = census["P008006"] / census["P008001"]
+census_demos["asian"] = census["P008006"] / census["P008001"] * 100
 
 # Percent Native Hawaiian and other Pacific Islander
-census_demos["pacific"] = census["P008007"] / census["P008001"]
+census_demos["pacific"] = census["P008007"] / census["P008001"] * 100
 
 # Percent Other Race (responded with "other race" or 2+ races)
-census_demos["other"] = 1 - (census_demos["white"] +
-                            census_demos["black"] + census_demos["native"] +
-                            census_demos["asian"] + census_demos["pacific"])
+census_demos["other"] = 100 - (census_demos["white"] + census_demos["black"] + 
+                            census_demos["native"] + census_demos["asian"] + 
+                            census_demos["pacific"])
 
 
 
@@ -134,7 +134,7 @@ for df in [acs_demos, census_demos]:
     df["state_draft"] = df["index"].str.split(",", expand=True)[1]
     df["state_name"] = df["state_draft"].str.split(":", expand=True)[0]
     
-    acs_demos["state_name"] = acs_demos["state_name"].str.strip()
+    df["state_name"] = df["state_name"].str.strip()
 
 # Delete process columns
 acs_demos.drop(columns = ["index", "state_draft"], inplace=True)
@@ -144,6 +144,17 @@ census_demos.drop(columns = ["index", "state_draft"], inplace=True)
 for df in [acs_demos, census_demos]:
     df["fips"] = df["state_fips"].astype(str).str.zfill(2) + \
                 df["county_fips"].astype(str).str.zfill(3)
+
+# Round percentage columns; [0,100] boundary QC
+acs_created = ["naturalized", "limited_english", "low_ed_attain", "below_poverty", 
+                "uninsured"]
+census_created = ["white", "black", "native", "asian", "pacific", "other"]
+for var in acs_created:
+    acs_demos[var] = acs_demos[var].round(decimals=2)
+    assert acs_demos[var].min() >= 0.0 and acs_demos[var].max() <= 100
+for var in census_created:
+    census_demos[var] = census_demos[var].round(decimals=2)
+    assert census_demos[var].min() >= 0.0 and census_demos[var].max() <= 100
 
 # Drop Puerto Rico
 acs_demos.drop(acs_demos[acs_demos.state_fips == 72].index, inplace=True)
@@ -155,12 +166,14 @@ census_demos.drop(census_demos[census_demos.state_fips == 72].index, inplace=Tru
 # Check and save
 
 # Visually check mins / maxes for values likely to be "missing" placeholders
-  # They seem to be inconsistent - either NaN or, like, -66666666
+  # They seem to be inconsistent - either NaN or, like, -6666666
+'''
 for var, _ in acs_demos.iteritems():
     print(var, acs_demos[var].describe())
 
 for var, _ in census_demos.iteritems():
     print(var, census_demos[var].describe())
+'''
 
 # Save static version of each data frame
 acs_demos.to_csv("data/acs_demos.csv")
