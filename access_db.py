@@ -27,9 +27,9 @@ INPUT_TRANSLATION = {
         "% Uninsured": "uninsured",
         "% White": "white",
         "% Black": "black",
-        "% Native": "native",
+        "% Native American": "native",
         "% Asian": "asian",
-        "% Pacific": "pacific",
+        "% Pacific Islander": "pacific",
         "% Other": "other"
 }
 

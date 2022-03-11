@@ -26,17 +26,21 @@ NOPREF_STR = 'No preference'
 RES_DIR = os.path.join(os.path.dirname(__file__), '..', 'res')
 
 COLUMN_NAMES = dict(
-    nat="% Naturalized Citizens",
-    lim_eng="% with Limited English",
-    low_ed="Low Ed Attain",
-    below_pov="% Below poverty line",
-    med_rent="Median rent",
+    naturalized="% Naturalized Citizens",
+    limited_english="% with Limited English",
+    low_ed_attain="Low Ed Attain",
+    below_poverty="% Below poverty line",
+    median_rent="Median rent",
     uninsured="% Uninsured",
-    county_name="County name",
-    state_name="State name",
-    racial_dem="Racial demography"
+    county="County name",
+    state="State name",
+    white="% White",
+    black="% Black",
+    native="% Native American",
+    asian="% Asian",
+    pacific="% Pacific Islander",
+    other="% Other"
 )
-
 
 def _valid_result(res):
     """Validate results returned by find_counties."""
@@ -149,11 +153,11 @@ def home(request):
         context['result'] = None
         context['err'] = res
         result = None
-    elif not _valid_result(res):
-        context['result'] = None
-        context['err'] = ('Return of find_counties has the wrong data type. '
-                          'Should be a tuple of length 4 with one string and '
-                          'three lists.')
+    # elif not _valid_result(res):
+    #     context['result'] = None
+    #     context['err'] = ('Return of find_counties has the wrong data type. '
+    #                       'Should be a tuple of length 4 with one string and '
+    #                       'three lists.')
     else:
         columns, result = res
 
