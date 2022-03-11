@@ -20,7 +20,7 @@
         }
 
         div#header h2 {
-            font-size: 15px;
+            font-size: 17px;
             margin: 5px;
             padding: 7px;
         }
@@ -56,7 +56,7 @@
         }
         
         input.query {
-            font-size: 18px;
+            font-size: 14px;
         }
         
         label {
@@ -72,14 +72,22 @@
             text-align: left;
         }
         
-        table.form tr td,
-        table.form tr th {
-            vertical-align: top;
+        table.outputs tr td,
+        table.outputs tr th {
+            padding: 3px;
+            font-size: 14px;
+        }
+        table.outputs tr:first-child td{
+            font-weight: bold;
+        }  
+
+        table.outputs tr:nth-child(even) {
+            background:#AA98A9;
         }
         
         table.form input {
             margin-right: 5px;
-            font-size: 18px;
+            font-size: 12px;
         }
         
         table.form ul {
@@ -99,24 +107,6 @@
             padding: 0px;
             margin: 0px;
             text-align: left;
-        }
-        
-        table.output tr:nth-child(even) {
-            background: #eee;
-        }
-        
-        ul.errorlist {
-            margin: 0px;
-            padding: 0px;
-            padding-top: 5px;
-        
-        }
-        
-        ul.errorlist li {
-            font-size: 12px;
-            color: red;
-            margin: 0px;
-            padding: 0px;
         }
         
         span.helptext {
