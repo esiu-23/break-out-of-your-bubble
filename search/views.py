@@ -38,7 +38,7 @@ COLUMN_NAMES = dict(
     black="% Black",
     native="% Native American",
     asian="% Asian",
-    pacific="% Pacific Islander"
+    pacific="% Pacific Islander",
     other="% Other"
 )
 
@@ -153,11 +153,11 @@ def home(request):
         context['result'] = None
         context['err'] = res
         result = None
-    elif not _valid_result(res):
-        context['result'] = None
-        context['err'] = ('Return of find_counties has the wrong data type. '
-                          'Should be a tuple of length 4 with one string and '
-                          'three lists.')
+    # elif not _valid_result(res):
+    #     context['result'] = None
+    #     context['err'] = ('Return of find_counties has the wrong data type. '
+    #                       'Should be a tuple of length 4 with one string and '
+    #                       'three lists.')
     else:
         columns, result = res
 
