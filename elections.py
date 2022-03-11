@@ -10,7 +10,11 @@ Contents:
 
 import subprocess
 
-# Import election data from box via shell script 
+# Pull election data from box via shell script 
 subprocess.run(['bash', 'elections.sh'])
 
-# 
+# Join cleaner ACS county var on FIPS
+
+
+# Clean and create vars
+
