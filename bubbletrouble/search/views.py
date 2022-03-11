@@ -39,7 +39,9 @@ COLUMN_NAMES = dict(
     native="% Native American",
     asian="% Asian",
     pacific="% Pacific Islander",
-    other="% Other"
+    other="% Other",
+    dvotes="Blue votes",
+    rvotes="Red votes"
 )
 
 def _valid_result(res):
