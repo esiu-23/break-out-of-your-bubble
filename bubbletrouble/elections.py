@@ -23,8 +23,8 @@ elections = elections[elections["year"] == 2016]
 elections = elections.merge(acs[["fips", "county_name"]], how="left", on="fips")
 
 # Visual scan for correct merge
-elections.head(100)
-elections.tail(100)
+#elections.head(100)
+#elections.tail(100)
 
 # Clean / create vars
 elections.drop(columns = ["county"], inplace=True)
@@ -35,9 +35,8 @@ elections["dvotes_pct"] = elections["dvotes"]/(elections["dvotes"] +
 elections["rvotes_pct"] = elections["rvotes"]/(elections["dvotes"] + 
                             elections["rvotes"]) * 100
 
-elections = elections.round(decimals = 2)
-
-elections["county"] = elections["county"].str.strip(" County")
+elections["dvotes_pct"] = elections["dvotes_pct"].round(decimals = 2)
+elections["rvotes_pct"] = elections["rvotes_pct"].round(decimals = 2)
 
 
 # Export cleaned elections
