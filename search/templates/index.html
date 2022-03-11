@@ -3,34 +3,25 @@
 <!DOCTYPE html>
 <html>
     <head>
-         {{ resources | safe }}
         <title>Project Bubble Trouble</title>
         <!-- <link rel="stylesheet" type="text/css" href="{% static "/main.css" %}" /> -->
         <style>
         html, body {
-            margin: 0;
-            padding: 0;
+            margin: 5px;
+            padding: 7px;
             font-family: Verdana;
         }
-               
+        
         div#header h1 {
-            font-size: 18px;
-            color: #f5f5f5;
-            margin: 0;
+            font-size: 36px;
+            color: #8A2BE2;
+            margin: 5px;
             padding: 7px;
         }
 
         div#header h2 {
             font-size: 15px;
-            color: #f5f5f5;
-            margin: 0;
-            padding: 7px;
-        }
-
-        div#header h3 {
-            font-size: 13px;
-            color: #f5f5f5;
-            margin: 0;
+            margin: 5px;
             padding: 7px;
         }
         
@@ -61,7 +52,7 @@
         
         fieldset legend {
             font-weight: bold;
-            font-size: 12px;
+            font-size: 14px;
         }
         
         input.query {
@@ -69,12 +60,12 @@
         }
         
         label {
-            font-size: 12px;
+            font-size: 14px;
         }
         
         p.num_results {
             margin-left: 5px;
-            font-size: 12px;
+            font-size: 14px;
         }
         
         table.form {
@@ -129,10 +120,12 @@
         }
         
         span.helptext {
-            font-size: 11px;
+            font-size: 14px;
             color: gray;
         }
     </style>
+
+        {{ resources | safe }}
     </head>
     <body>
         <div id="header">
@@ -146,23 +139,28 @@
                 would be exposed to more politically diverse attitudes than their current residence.<br>
                 <br>
                 Source: Brown University
-            <h3> Part 1: Explore the US's current partisan divide </h3> 
+                <br>
+                <br>
+            <h2> Part 1: Explore the US's current partisan divide </h2> 
             Explore the map below. Hover over the map to see the county name, and <br> 
             that county's % Republican and % Democratic votes in the 2016 election. <br>
-            <br>
             <ul>
             <li>What trends do you see?</li>
             </ul>
-            <br>
             Note: To simplify the visualization, we only included the contiguous 48 states in this map. 
+            
         </div>
         <div>
             {{ div | safe}}
             {{ script | safe}}
         </div>
-        <h3>Part 2: Find counties which are demographically similar, <br>
-            but politically different from your current county  </h3>
-        <h3>Instructions:  </h3>  
+        <br>
+        <br>
+        <div id="header">
+        <h2>Part 2: Find counties which are demographically similar, <br>
+            but politically different from your current county  </h2>
+            <br>
+            Instructions:
         <ol>
             <li>Select your current state and county of residence.</li>
             <li>Enter in your tolerance for dissimilarity. <br>
@@ -174,6 +172,9 @@
             The county in which you currently reside will always be shown first. <br>
             The rest of the responses are sorted so the most politically different counties are at the top.<br>
         </ol>
+        <br>
+        <br>
+        </div>
         <div class="frame">
             <form method="get">
                 {% csrf_token %}
