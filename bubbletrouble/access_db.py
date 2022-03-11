@@ -67,7 +67,7 @@ def find_counties(user_inputs):
 
     from_stmt = build_from(acs, census)
 
-    param_dict = get_original(user_inputs, from_stmt, curse, threshold)
+    param_dict, original_row = get_original(user_inputs, from_stmt, curse, threshold)
 
     where_statement, params = build_where(user_inputs, param_dict)
 
@@ -75,7 +75,7 @@ def find_counties(user_inputs):
 
     rv = curse.execute(query, params).fetchall()
 
-    output = ideology_sort(rv)
+    output = ideology_sort(rv, original_row)
     hdr = get_header(curse)
     
     conn.close
@@ -193,10 +193,8 @@ def get_original(user_inputs, f_state, cursor, threshold):
                   AND elections.county = "{home_county}"
                   AND elections.year = 2016'''
 
-    #for arg, val in user_inputs.items():
     for arg in user_inputs['demographics']:
         select_dict = {}
-        #if isinstance(val, bool) and val:
         select_dict[arg] = 0
         s_state, acs, census = build_select(select_dict, False)
         f_state = build_from(acs, census)
@@ -212,32 +210,39 @@ def get_original(user_inputs, f_state, cursor, threshold):
         param_dict[arg] = (bot_range, top_range)
     
 
-    return param_dict
+    return (param_dict, values)
 
 
-def ideology_sort(demo_group):
+def ideology_sort(demo_group, original_row):
     '''
     '''
-    original = demo_group[0]
-    print(original)
-    dvotes = original[2]
-    rvotes = original[3]
-    all_votes = dvotes + rvotes
-    perc_dem = dvotes / all_votes
-    perc_rep = rvotes / all_votes
+    home_state = original_row[0][0]
+    home_county = original_row[0][1]
+    print("Home is:", home_state, home_county)
+
+    for val in demo_group:
+        if val[0] == home_state and val[1] == home_county:
+            print("matched val", val)
+            original = val
+            break
+    print(demo_group)
+    o_dvotes = original[2]
+    o_rvotes = original[3]
+    o_all_votes = o_dvotes + o_rvotes
+    o_perc_dem = o_dvotes / o_all_votes
+    o_perc_rep = o_rvotes / o_all_votes
 
     o_rebuild = []
     for element in original:
         o_rebuild.append(element)
-        print(o_rebuild)
-    o_rebuild.insert(4, perc_dem)
-    o_rebuild.insert(5, perc_rep)
-    o_rebuild.append(0.0)
+    o_rebuild.insert(4, o_perc_dem)
+    o_rebuild.insert(5, o_perc_rep)
+    #o_rebuild.append(0.0)
 
-    full_original = tuple(o_rebuild)   
+    full_original = tuple(o_rebuild)
 
     output = []
-    for match in demo_group[1:]:
+    for match in demo_group:
         rebuild= []
         dvotes = match[2]
         rvotes = match[3]
@@ -247,14 +252,16 @@ def ideology_sort(demo_group):
         perc_diff = abs(perc_dem - full_original[4])
         for element in match:
             rebuild.append(element)
-        rebuild.insert(4, perc_dem)
-        rebuild.insert(5, perc_rep)
-        rebuild.insert(6, perc_diff)
+        rebuild.insert(4, perc_diff)
+        rebuild.insert(5, perc_dem)
+        rebuild.insert(6, perc_rep)
         tuple(rebuild)
+        #print(rebuild[1], rebuild[6])
         output.append(rebuild)
     
-    output = sorted(output, key = lambda x: x[6], reverse = True)
-    output.insert(0, full_original)
-
+    output = sorted(output, key = lambda x: x[4], reverse = True)
+    #print(output)
+    output.insert(0, output[-1])
+    output = output[:-1]
     return output
 
