@@ -112,8 +112,8 @@ census_demos["asian"] = census["P008006"] / census["P008001"] * 100
 census_demos["pacific"] = census["P008007"] / census["P008001"] * 100
 
 # Percent Other Race (responded with "other race" or 2+ races)
-census_demos["other"] = 100 - (census_demos["white"] + census_demos["black"] + 
-                            census_demos["native"] + census_demos["asian"] + 
+census_demos["other"] = 100 - (census_demos["white"] + census_demos["black"] +
+                            census_demos["native"] + census_demos["asian"] +
                             census_demos["pacific"])
 
 
@@ -133,7 +133,7 @@ for df in [acs_demos, census_demos]:
     # Split out state name
     df["state_draft"] = df["index"].str.split(",", expand=True)[1]
     df["state_name"] = df["state_draft"].str.split(":", expand=True)[0]
-    
+
     df["state_name"] = df["state_name"].str.strip()
 
 # Delete process columns
@@ -146,7 +146,7 @@ for df in [acs_demos, census_demos]:
                 df["county_fips"].astype(str).str.zfill(3)
 
 # Round percentage columns; [0,100] boundary QC
-acs_created = ["naturalized", "limited_english", "low_ed_attain", "below_poverty", 
+acs_created = ["naturalized", "limited_english", "low_ed_attain", "below_poverty",
                 "uninsured"]
 census_created = ["white", "black", "native", "asian", "pacific", "other"]
 for var in acs_created:
