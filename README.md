@@ -1,7 +1,7 @@
 # proj-bubble-trouble
-## CS 122 Project team: Evelyn Siu, Cole von Glahn, Carolyn Vilter
+###### CS 122 Project team: Evelyn Siu, Cole von Glahn, Carolyn Vilter
 
-**Setup steps:
+**Setup steps:**
 
 1. Set up a virtual environment with the necessary packages by running bubbletrouble/install.sh.
 
@@ -14,7 +14,7 @@
 3. Start the application by running "python3 manage.py runserver" from inside the "bubbletrouble" directory and following the link to your browser.
 
 
-**Data notes:
+**Data notes:**
 - We have 3 sources of data: election data (supplied by a Harris professor), shapefiles (downloaded online), and demographic data (drawn from an API).
 - The shapefiles must be downloaded to the user's directory before the application can be run - see step 2 above.
 - The other files are ready to use. But for grading purposes:
