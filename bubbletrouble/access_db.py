@@ -70,10 +70,10 @@ def find_counties(user_inputs):
     where_statement, params = build_where(user_inputs, param_dict)
 
     query = select_stmt + from_stmt + where_statement
-  #  print(query)
-  #  print(params)
+    #print(query)
+    #print(params)
     rv = curse.execute(query, params).fetchall()
-  #  print(rv)
+    #print(rv)
 
     output = ideology_sort(rv, original_row)
     hdr = get_header(curse)
@@ -88,12 +88,15 @@ def get_header(cursor):
     Given a cursor object, returns the appropriate header (column names)
     '''
     header = []
-    header.append("diff_score")
+
     for i in cursor.description:
         s = i[0]
         if "." in s:
             s = s[s.find(".")+1:]
         header.append(s)
+    header.insert(4,"% Difference in Voting Behavior")
+    header.insert(5,"% Dem Voters")
+    header.insert(6,"% Rep Voters")
 
     return header
 
@@ -106,7 +109,7 @@ def build_select(user_inputs, base = True):
     join_acs = False
     join_census = False
     if base:
-        base_fragment = '''SELECT elections.state, elections.county, elections.dvotes_pct, elections.rvotes_pct'''
+        base_fragment = '''SELECT elections.state, elections.county, elections.dvotes, elections.rvotes'''
         for arg in user_inputs['demographics']:
             if arg in ACS_KEYS:
                 query_extension += f", acs.{arg}"
@@ -200,6 +203,7 @@ def get_original(user_inputs, f_state, cursor, threshold):
         f_state = build_from(acs, census)
         query = s_state + f_state + w_state
         values = cursor.execute(query).fetchall()
+        #print(values)
         if arg != "median_rent":
             bot_range = max(values[0][2] - threshold, 0)
             top_range = values[0][2] + threshold
@@ -217,49 +221,50 @@ def ideology_sort(demo_group, original_row):
     '''
     home_state = original_row[0][0]
     home_county = original_row[0][1]
+    #print(home_state, home_county)
 
 
     for val in demo_group:
         if val[0] == home_state and val[1] == home_county:
+            #print(val)
             original = val
             break
 
-    # o_dvotes = original[2]
-    # o_rvotes = original[3]
-    # o_all_votes = o_dvotes + o_rvotes
+    o_dvotes = original[2]
+    o_rvotes = original[3]
+    o_all_votes = o_dvotes + o_rvotes
 
-    # # Evelyn: Adding rounding to calculated values
-    # o_perc_dem = round((o_dvotes / o_all_votes), 2)
-    # o_perc_rep = round((o_rvotes / o_all_votes), 2)
+    o_perc_dem = (o_dvotes / o_all_votes)
+    o_perc_rep = (o_rvotes / o_all_votes)
 
     o_rebuild = []
     for element in original:
         o_rebuild.append(element)
-    # o_rebuild.insert(4, o_perc_dem)
-    # o_rebuild.insert(5, o_perc_rep)
+    o_rebuild.insert(4, o_perc_dem)
+    o_rebuild.insert(5, o_perc_rep)
 
     full_original = tuple(o_rebuild)
+    #print(full_original)
 
     output = []
     for match in demo_group:
         rebuild= []
-        dvotes_pct = match[2]
-        rvotes_pct = match[3]
-        #all_votes = dvotes + rvotes
-        #perc_dem = dvotes / all_votes
-        #perc_rep = rvotes / all_votes
-        perc_diff = round(abs(dvotes_pct - full_original[4]), 2)
+        dvotes = match[2]
+        rvotes = match[3]
+        all_votes = dvotes + rvotes
+        perc_dem = dvotes / all_votes
+        perc_rep = rvotes / all_votes
+        perc_diff = abs(perc_dem - full_original[4])
         for element in match:
             rebuild.append(element)
-        rebuild.insert(0, perc_diff)
-        # rebuild.insert(5, perc_dem)
-        # rebuild.insert(6, perc_rep)
+        rebuild.insert(4, round(perc_diff * 100, 2))
+        rebuild.insert(5, round(perc_dem * 100, 2))
+        rebuild.insert(6, round(perc_rep * 100, 2))
         tuple(rebuild)
         output.append(rebuild)
     
-    output = sorted(output, key = lambda x: x[0], reverse = True)
+    output = sorted(output, key = lambda x: x[4], reverse = True)
+    #print(output)
     output.insert(0, output[-1])
     output = output[:-1]
-    
     return output
-
