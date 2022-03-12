@@ -23,12 +23,16 @@ def generate_lists():
     # write lists of unique values to file
     f = open('state_list.csv', 'w')
     w = csv.writer(f, delimiter="|")
-    for row in state:
-        w.writerow(row)
+    for i, row in enumerate(state):
+        if i!=0:
+            w.writerow(row)
     f.close()
 
     f = open('county_list.csv', 'w')
     w = csv.writer(f, delimiter="|")
-    for row in county:
-        w.writerow(row)
+    for i, row in enumerate(county):
+        if i!=0:
+            w.writerow(row)
     f.close()
+
+generate_lists()
