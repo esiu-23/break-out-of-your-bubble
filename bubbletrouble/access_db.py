@@ -94,9 +94,9 @@ def get_header(cursor):
         if "." in s:
             s = s[s.find(".")+1:]
         header.append(s)
-    header.append("x1")
-    header.append("x2")
-    header.append("x3")
+    header.insert(4,"% Difference in Voting Behavior")
+    header.insert(5,"% Dem Voters")
+    header.insert(6,"% Rep Voters")
 
     return header
 
