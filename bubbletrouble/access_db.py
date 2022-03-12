@@ -70,10 +70,10 @@ def find_counties(user_inputs):
     where_statement, params = build_where(user_inputs, param_dict)
 
     query = select_stmt + from_stmt + where_statement
-    print(query)
-    print(params)
+    #print(query)
+    #print(params)
     rv = curse.execute(query, params).fetchall()
-    print(rv)
+    #print(rv)
 
     output = ideology_sort(rv, original_row)
     hdr = get_header(curse)
@@ -203,6 +203,7 @@ def get_original(user_inputs, f_state, cursor, threshold):
         f_state = build_from(acs, census)
         query = s_state + f_state + w_state
         values = cursor.execute(query).fetchall()
+        #print(values)
         if arg != "median_rent":
             bot_range = max(values[0][2] - threshold, 0)
             top_range = values[0][2] + threshold
@@ -220,10 +221,12 @@ def ideology_sort(demo_group, original_row):
     '''
     home_state = original_row[0][0]
     home_county = original_row[0][1]
+    #print(home_state, home_county)
 
 
     for val in demo_group:
         if val[0] == home_state and val[1] == home_county:
+            #print(val)
             original = val
             break
 
@@ -232,8 +235,10 @@ def ideology_sort(demo_group, original_row):
     o_all_votes = o_dvotes + o_rvotes
 
     # Evelyn: Adding rounding to calculated values
-    o_perc_dem = round((o_dvotes / o_all_votes), 2)
-    o_perc_rep = round((o_rvotes / o_all_votes), 2)
+    # o_perc_dem = round((o_dvotes / o_all_votes), 2)
+    # o_perc_rep = round((o_rvotes / o_all_votes), 2)
+    o_perc_dem = (o_dvotes / o_all_votes)
+    o_perc_rep = (o_rvotes / o_all_votes)
 
     o_rebuild = []
     for element in original:
@@ -242,16 +247,23 @@ def ideology_sort(demo_group, original_row):
     o_rebuild.insert(5, o_perc_rep)
 
     full_original = tuple(o_rebuild)
+    print(full_original)
 
     output = []
     for match in demo_group:
         rebuild= []
+        if match[0] == home_state and match[1] == home_county:
+            print(match)
         dvotes = match[2]
         rvotes = match[3]
         all_votes = dvotes + rvotes
         perc_dem = dvotes / all_votes
+        if match[0] == home_state and match[1] == home_county:
+            print(perc_dem)
         perc_rep = rvotes / all_votes
         perc_diff = abs(perc_dem - full_original[4])
+        if match[0] == home_state and match[1] == home_county:
+            print(perc_diff)
         for element in match:
             rebuild.append(element)
         rebuild.insert(4, perc_diff)
@@ -261,6 +273,7 @@ def ideology_sort(demo_group, original_row):
         output.append(rebuild)
     
     output = sorted(output, key = lambda x: x[4], reverse = True)
+    #print(output)
     output.insert(0, output[-1])
     output = output[:-1]
     return output
