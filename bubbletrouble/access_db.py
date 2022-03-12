@@ -94,6 +94,9 @@ def get_header(cursor):
         if "." in s:
             s = s[s.find(".")+1:]
         header.append(s)
+    header.append("x1")
+    header.append("x2")
+    header.append("x3")
 
     return header
 
