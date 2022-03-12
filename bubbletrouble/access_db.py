@@ -251,14 +251,18 @@ def ideology_sort(demo_group, original_row):
     
     output = sorted(output, key = lambda x: x[4], reverse = True)
 
-    top_row = []
-    for element in output[-1]:
-        top_row.append(element)
+    for i, row in enumerate(list(reversed(output))):
+        if row[0] == home_state and row[1] == home_county:
+            home_position = -i - 1
+            print(home_position)
+            top_row = []
+            for element in row:
+                top_row.append(element)
+            break
 
     top_row[4] = "HOME COUNTY"
     tuple(top_row)
     
     output.insert(0, top_row)
-    output = output[:-1]
-
+    print(output.pop(home_position))
     return output
