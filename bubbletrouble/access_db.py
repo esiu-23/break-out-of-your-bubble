@@ -220,11 +220,11 @@ def ideology_sort(demo_group, original_row):
     home_county = original_row[0][1]
     print("Home is:", home_state, home_county)
     
-    # 1. Error: original referenced before assignment. You defined original
+    # Evelyn: 1. Error: original referenced before assignment. You defined original
     # in a conditional and then reference it outside of a condition. Suggestion: 
     # define original = [] outside of conditional. 
 
-    # 2. Tried that, defining original as empty list first. Got new error, 
+    # Evelyn: 2. Tried that, defining original as empty list first. Got new error, 
     # list index out of range original[2]. Suggests that original is not getting
     # values in order to be indexing into it.
 
@@ -238,7 +238,7 @@ def ideology_sort(demo_group, original_row):
     o_rvotes = original[3]
     o_all_votes = o_dvotes + o_rvotes
 
-    # adding rounding to calculated values
+    # Evelyn: Adding rounding to calculated values
     o_perc_dem = round((o_dvotes / o_all_votes), 2)
     o_perc_rep = round((o_rvotes / o_all_votes), 2)
 
