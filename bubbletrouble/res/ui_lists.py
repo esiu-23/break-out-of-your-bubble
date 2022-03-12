@@ -10,11 +10,9 @@ def generate_lists():
     # print(c)
 
     # get lists of unique values from sql database
-    state = c.execute('''SELECT DISTINCT state_name FROM acs''').fetchall()
-    county = c.execute('''SELECT DISTINCT county_name FROM acs''').fetchall()
+    state = c.execute('''SELECT DISTINCT state FROM elections''').fetchall()
+    county = c.execute('''SELECT DISTINCT county FROM elections''').fetchall()
     
-    # print(state)
-    # print(county)
     connection.close()
 
 
