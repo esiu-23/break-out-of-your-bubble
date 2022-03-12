@@ -219,6 +219,14 @@ def ideology_sort(demo_group, original_row):
     home_state = original_row[0][0]
     home_county = original_row[0][1]
     print("Home is:", home_state, home_county)
+    
+    # 1. Error: original referenced before assignment. You defined original
+    # in a conditional and then reference it outside of a condition. Suggestion: 
+    # define original = [] outside of conditional. 
+
+    # 2. Tried that, defining original as empty list first. Got new error, 
+    # list index out of range original[2]. Suggests that original is not getting
+    # values in order to be indexing into it. 
 
     for val in demo_group:
         if val[0] == home_state and val[1] == home_county:
