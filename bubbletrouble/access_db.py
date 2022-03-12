@@ -226,7 +226,7 @@ def ideology_sort(demo_group, original_row):
 
     # 2. Tried that, defining original as empty list first. Got new error, 
     # list index out of range original[2]. Suggests that original is not getting
-    # values in order to be indexing into it. 
+    # values in order to be indexing into it.
 
     for val in demo_group:
         if val[0] == home_state and val[1] == home_county:
@@ -237,8 +237,10 @@ def ideology_sort(demo_group, original_row):
     o_dvotes = original[2]
     o_rvotes = original[3]
     o_all_votes = o_dvotes + o_rvotes
-    o_perc_dem = o_dvotes / o_all_votes
-    o_perc_rep = o_rvotes / o_all_votes
+
+    # adding rounding to calculated values
+    o_perc_dem = round((o_dvotes / o_all_votes), 2)
+    o_perc_rep = round((o_rvotes / o_all_votes), 2)
 
     o_rebuild = []
     for element in original:
