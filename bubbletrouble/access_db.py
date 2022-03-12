@@ -3,8 +3,6 @@ MSCAPP 122 Final Project
 Cole von Glahn, Evelyn Siu, Carolyn Vilter
 '''
 
-
-
 import pandas as pd
 import sqlite3
 import os
@@ -50,7 +48,7 @@ def find_counties(user_inputs):
             sorted by dissimilarity.
     '''
     # Percentile conversion for threshold
-    threshold = user_inputs['dissimilarity'] / 100
+    threshold = user_inputs['dissimilarity']
 
     conn = sqlite3.connect("bubble_tables.db")
     curse = conn.cursor()
@@ -72,8 +70,10 @@ def find_counties(user_inputs):
     where_statement, params = build_where(user_inputs, param_dict)
 
     query = select_stmt + from_stmt + where_statement
-
+    print(query)
+    print(params)
     rv = curse.execute(query, params).fetchall()
+    print(rv)
 
     output = ideology_sort(rv, original_row)
     hdr = get_header(curse)
@@ -149,7 +149,7 @@ def build_where(user_inputs, param_dict):
 
     pieces = []
     params = []
-    base_query = " WHERE elections.year = 2012 "
+    base_query = " WHERE elections.year = 2016 "
     where_dict = {
         "naturalized": "acs.naturalized BETWEEN ? AND ?",
         "limited_english": "acs.limited_english BETWEEN ? AND ?",
@@ -202,13 +202,12 @@ def get_original(user_inputs, f_state, cursor, threshold):
         values = cursor.execute(query).fetchall()
         if arg != "median_rent":
             bot_range = max(values[0][2] - threshold, 0)
-            top_range = min(values[0][2] + threshold, 1)
+            top_range = values[0][2] + threshold
         else:
-            diff = values[0][2] * threshold
+            diff = values[0][2] * (threshold / 100)
             bot_range = max(values[0][2] - diff, 0)
             top_range = values[0][2] + diff
         param_dict[arg] = (bot_range, top_range)
-    
 
     return (param_dict, values)
 
@@ -218,22 +217,13 @@ def ideology_sort(demo_group, original_row):
     '''
     home_state = original_row[0][0]
     home_county = original_row[0][1]
-    print("Home is:", home_state, home_county)
-    
-    # Evelyn: 1. Error: original referenced before assignment. You defined original
-    # in a conditional and then reference it outside of a condition. Suggestion: 
-    # define original = [] outside of conditional. 
 
-    # Evelyn: 2. Tried that, defining original as empty list first. Got new error, 
-    # list index out of range original[2]. Suggests that original is not getting
-    # values in order to be indexing into it.
 
     for val in demo_group:
         if val[0] == home_state and val[1] == home_county:
-            print("matched val", val)
             original = val
             break
-    print(demo_group)
+
     o_dvotes = original[2]
     o_rvotes = original[3]
     o_all_votes = o_dvotes + o_rvotes
@@ -247,7 +237,6 @@ def ideology_sort(demo_group, original_row):
         o_rebuild.append(element)
     o_rebuild.insert(4, o_perc_dem)
     o_rebuild.insert(5, o_perc_rep)
-    #o_rebuild.append(0.0)
 
     full_original = tuple(o_rebuild)
 
@@ -266,11 +255,9 @@ def ideology_sort(demo_group, original_row):
         rebuild.insert(5, perc_dem)
         rebuild.insert(6, perc_rep)
         tuple(rebuild)
-        #print(rebuild[1], rebuild[6])
         output.append(rebuild)
     
     output = sorted(output, key = lambda x: x[4], reverse = True)
-    #print(output)
     output.insert(0, output[-1])
     output = output[:-1]
     return output
