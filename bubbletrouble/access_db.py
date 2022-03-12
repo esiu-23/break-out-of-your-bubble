@@ -234,9 +234,6 @@ def ideology_sort(demo_group, original_row):
     o_rvotes = original[3]
     o_all_votes = o_dvotes + o_rvotes
 
-    # Evelyn: Adding rounding to calculated values
-    # o_perc_dem = round((o_dvotes / o_all_votes), 2)
-    # o_perc_rep = round((o_rvotes / o_all_votes), 2)
     o_perc_dem = (o_dvotes / o_all_votes)
     o_perc_rep = (o_rvotes / o_all_votes)
 
@@ -247,23 +244,17 @@ def ideology_sort(demo_group, original_row):
     o_rebuild.insert(5, o_perc_rep)
 
     full_original = tuple(o_rebuild)
-    print(full_original)
+    #print(full_original)
 
     output = []
     for match in demo_group:
         rebuild= []
-        if match[0] == home_state and match[1] == home_county:
-            print(match)
         dvotes = match[2]
         rvotes = match[3]
         all_votes = dvotes + rvotes
         perc_dem = dvotes / all_votes
-        if match[0] == home_state and match[1] == home_county:
-            print(perc_dem)
         perc_rep = rvotes / all_votes
         perc_diff = abs(perc_dem - full_original[4])
-        if match[0] == home_state and match[1] == home_county:
-            print(perc_diff)
         for element in match:
             rebuild.append(element)
         rebuild.insert(4, perc_diff)
