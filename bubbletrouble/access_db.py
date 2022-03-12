@@ -257,9 +257,9 @@ def ideology_sort(demo_group, original_row):
         perc_diff = abs(perc_dem - full_original[4])
         for element in match:
             rebuild.append(element)
-        rebuild.insert(4, perc_diff)
-        rebuild.insert(5, perc_dem)
-        rebuild.insert(6, perc_rep)
+        rebuild.insert(4, round(perc_diff * 100, 2))
+        rebuild.insert(5, round(perc_dem * 100, 2))
+        rebuild.insert(6, round(perc_rep * 100, 2))
         tuple(rebuild)
         output.append(rebuild)
     
