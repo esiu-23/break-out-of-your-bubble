@@ -11,7 +11,7 @@
     - wget seems to be less reliable on macs. If it has issues, the shapefiles can be found here: https://uchicago.box.com/s/davisunnxu751qs8plajhkmlj4jd5eby.
     - All other data files are saved on Github - no setup necessary before running the application.
 
-3. Start the application by running "python3 manage.py runserver" from inside the "bubbletrouble" directory and following the link to your browser.
+3. Start the application by running "python3 manage.py runserver" from inside the "bubbletrouble" directory and following the link to your browser. Note that the application takes about a minute to load (initially, and each time a new query is submitted).
 
 
 **Data notes:**
