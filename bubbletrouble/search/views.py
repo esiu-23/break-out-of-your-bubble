@@ -95,9 +95,6 @@ class SearchForm(forms.Form):
                                      choices=DEMOS,
                                      widget=forms.CheckboxSelectMultiple,
                                      required=True)
-    
-    show_args = forms.BooleanField(label='Show args_to_ui',
-                                    required=False)
 
 def home(request):
     context = {}
@@ -117,21 +114,13 @@ def home(request):
             args['state'] = form.cleaned_data['state']
             args['county'] = form.cleaned_data['county']
 
-            if form.cleaned_data['show_args']:
-                context['args'] = 'args_to_ui = ' + json.dumps(args, indent=2)
-
             try:
                 res = find_counties(args)
             except Exception as e:
                 print('Exception caught')
                 bt = traceback.format_exception(*sys.exc_info()[:3])
                 context['err'] = "You chose a state/county pair that does not exist. \
-                Please select the state and ocunty where you currently live."
-#                 context['err'] = """
-#                 An exception was thrown in find_counties:
-#                 <pre>{}
-# {}</pre>
-#                 """.format(e, '\n'.join(bt))
+                Please select the state and county where you currently live."
 
                 res = None
     else:
