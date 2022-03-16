@@ -3,7 +3,6 @@ MSCAPP 122 Final Project
 Cole von Glahn, Evelyn Siu, Carolyn Vilter
 '''
 
-import pandas as pd
 import sqlite3
 import os
 
@@ -12,7 +11,7 @@ DATA_DIR = os.path.dirname(__file__)
 DATABASE_FILENAME = os.path.join(DATA_DIR, 'bubble_tables.db')
 
 
-ACS_KEYS = set(["naturalized", "limited_english", "low_ed_attain", 
+ACS_KEYS = set(["naturalized", "limited_english", "low_ed_attain",
                 "below_poverty", "median_rent", "uninsured"])
 CENSUS_KEYS = set(["white", "black", "native", "asian", "pacific", "other"])
 
@@ -41,7 +40,7 @@ def find_counties(user_inputs):
     args:
         user_inputs (dict): A dictionary containing the starting county,
             characteristics of interest, and dissimilarity tolerance.
-    
+
     outputs:
         hdr (list): Columns associated with the characteristics of interest.
         output (list of tuples): Contains collected counties within threshold,
@@ -58,7 +57,7 @@ def find_counties(user_inputs):
     translated = []
     for demo in user_inputs['demographics']:
         translated.append(INPUT_TRANSLATION[demo])
-    user_inputs['demographics'] = translated        
+    user_inputs['demographics'] = translated
 
     # Build db queries and collect foundational information.
     select_stmt, acs, census = build_select(user_inputs)
@@ -74,8 +73,8 @@ def find_counties(user_inputs):
     # Sort counties by ideological difference and prepare headers for output.
     output = ideology_sort(demo_group, original_row)
     hdr = get_header(curse)
-    
-    conn.close
+
+    conn.close()
 
     return (hdr, output)
 
@@ -93,7 +92,7 @@ def get_header(cursor):
         if "." in s:
             s = s[s.find(".")+1:]
         header.append(s)
-    
+
     # Insert values calculated after SQL query execution
     header.insert(4,"% Difference in Voting Behavior")
     header.insert(5,"% Dem Voters")
@@ -106,7 +105,7 @@ def build_select(user_inputs, base = True):
     '''
     Builds the SELECT clause of a SQL query dependent on user input.
 
-    Args: 
+    Args:
         user_inputs (dict): A dictionary containing the starting county,
             characteristics of interest, and dissimilarity tolerance.
         base (bool): Sorts query requests between internal need and output.
@@ -123,7 +122,8 @@ def build_select(user_inputs, base = True):
 
     if base:
         # Constructs select statement for output query.
-        base_fragment = '''SELECT elections.state, elections.county, elections.dvotes, elections.rvotes'''
+        base_fragment = '''SELECT elections.state, elections.county,
+            elections.dvotes, elections.rvotes'''
         for arg in user_inputs['demographics']:
             # Adds and flags for ACS demographics
             if arg in ACS_KEYS:
@@ -159,11 +159,11 @@ def build_from(acs, census):
     Args:
         join_census (bool): Whether or not to join the census table
         join_acs (bool): Whether or not to join the acs table
-    
+
     Outputs:
         from_stmt (string): The FROM clause
     '''
-    
+
     from_stmt = " FROM elections "
     if acs:
         from_stmt += "JOIN acs ON elections.fips = acs.fips"
@@ -191,7 +191,7 @@ def build_where(user_inputs, param_dict):
     pieces = []
     params = []
     base_query = " WHERE elections.year = 2016 "
-    
+
     # The mapping of input demographics to WHERE clause portions.
     where_dict = {
         "naturalized": "acs.naturalized BETWEEN ? AND ?",
@@ -220,7 +220,7 @@ def build_where(user_inputs, param_dict):
         conditions = "AND " + " AND ".join(pieces)
     else:
         conditions = ''
-    
+
     # Constructs query out of pieces.
     where_stmt = base_query + conditions
 
@@ -261,7 +261,7 @@ def get_original(user_inputs, cursor, threshold):
         f_state = build_from(acs, census)
         query = s_state + f_state + w_state
         values = cursor.execute(query).fetchall()
-        
+
         # Calculate ranges for fields of percents expressed as decimals.
         if arg != "median_rent":
             bot_range = max(values[0][2] - threshold, 0)
@@ -271,7 +271,7 @@ def get_original(user_inputs, cursor, threshold):
             diff = values[0][2] * (threshold / 100)
             bot_range = max(values[0][2] - diff, 0)
             top_range = values[0][2] + diff
-        
+
         # Output ranges for parameterization.
         param_dict[arg] = (bot_range, top_range)
 
@@ -326,7 +326,7 @@ def ideology_sort(demo_group, original_row):
         rebuild.insert(6, round(perc_rep * 100, 2))
         tuple(rebuild)
         output.append(rebuild)
-    
+
     # Sort output list by descending ideological dissimilarity
     # compared to original county
     output = sorted(output, key = lambda x: x[4], reverse = True)
@@ -340,9 +340,10 @@ def ideology_sort(demo_group, original_row):
                 top_row.append(element)
             break
 
-    # Identify, repack, and topdeck original county.
+    # Identify, repack, and topdeck original county. Remove duplicate.
     top_row[4] = "COUNTY OF INTEREST"
     tuple(top_row)
     output.insert(0, top_row)
+    output.pop(home_position)
 
     return output
