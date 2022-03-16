@@ -1,6 +1,6 @@
 '''
 MSCAPP 122 Final Project
-Cole von Glahn, Evelyn Siu, Carolyn Vilter
+Cole von Glahn
 '''
 
 import sqlite3
