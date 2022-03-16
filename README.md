@@ -3,6 +3,8 @@
 
 **Setup steps:**
 
+0. Clone this repository to your local or CS-server folder. Note: Carolyn has a Mac with an M1 chip and has not been able to install Geopandas, as previously discussed. As such, you may find it easier to work from the CS linux server or VDesk.
+
 1. Set up a virtual environment with the necessary packages by running bubbletrouble/install.sh.
 
 2. The shapefiles are too large to store on Github, so before running the application, download them from Box:
