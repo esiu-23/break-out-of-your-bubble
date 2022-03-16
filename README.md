@@ -3,17 +3,17 @@
 
 **Setup steps:**
 
-0. Clone this repository to your local or CS-server folder. Note: Carolyn has a Mac with an M1 chip and has not been able to install Geopandas, as previously discussed. As such, you may find it easier to work from the CS linux server or VDesk.
+0. Clone this repository to your local or CS-server folder. Note: Carolyn has a Mac with an M1 chip and has not been able to install Geopandas, as previously discussed. As such, we recommend that you complete the following steps from the CS linux server or VDesk.
 
-1. Set up a virtual environment with the necessary packages by running bubbletrouble/install.sh.
+1. Set up a virtual environment with the necessary packages by cd-ing into the "bubbletrouble" directory and running "chmod u+x install.sh" followed by "./install.sh".
 
 2. The shapefiles are too large to store on Github, so before running the application, download them from Box:
-    - cd into the "bubbletrouble" directory.
-    - Run "python3 shapefiles.py". Using "shapefiles.sh", it will automatically wget the necessary shapefiles from Box and place them in the "data" directory for you.
-    - wget seems to be less reliable on macs. If it has issues, the shapefiles can be found here: https://uchicago.box.com/s/davisunnxu751qs8plajhkmlj4jd5eby.
+    - Run "python3 shapefiles.py" from the "bubbletrouble" directory. Using "shapefiles.sh", it will automatically wget the necessary shapefiles from Box and place them in the "data" directory for you.
+    - wget seems to be less reliable on macs. If it has issues, the shapefiles can be found here: https://uchicago.box.com/s/davisunnxu751qs8plajhkmlj4jd5eby. You need only download the .shp, .dbf, .shx files - make sure to place them in "bubbletrouble/data/".
     - All other data files are saved on Github - no setup necessary before running the application.
 
 3. Start the application by running "python3 manage.py runserver" from inside the "bubbletrouble" directory and following the link to your browser. Note that the application takes about a minute to load (initially, and each time a new query is submitted).
+    - Note that, from a Mac, it may be necessary to run "cd; pip install -Iv django==2.0.2 --user" before "python3 manage.py runserver".
 
 
 **Data notes:**
